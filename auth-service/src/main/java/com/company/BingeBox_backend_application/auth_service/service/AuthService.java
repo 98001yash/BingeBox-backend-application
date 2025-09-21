@@ -10,7 +10,6 @@ import com.company.BingeBox_backend_application.auth_service.repository.UserRepo
 import com.company.BingeBox_backend_application.auth_service.utils.PasswordUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.ResourceClosedException;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
