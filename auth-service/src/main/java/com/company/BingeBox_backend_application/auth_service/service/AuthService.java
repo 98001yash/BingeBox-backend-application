@@ -4,12 +4,14 @@ import com.company.BingeBox_backend_application.auth_service.dtos.LoginRequestDt
 import com.company.BingeBox_backend_application.auth_service.dtos.SignupRequestDto;
 import com.company.BingeBox_backend_application.auth_service.dtos.UserResponseDto;
 import com.company.BingeBox_backend_application.auth_service.entities.User;
+import com.company.BingeBox_backend_application.auth_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.auth_service.exceptions.RuntimeConflictException;
 import com.company.BingeBox_backend_application.auth_service.repository.UserRepository;
 import com.company.BingeBox_backend_application.auth_service.utils.PasswordUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,6 +43,22 @@ public class AuthService {
 
 
     public String login(LoginRequestDto loginRequestDto){
+      log.info("Login attempt for email: {}",loginRequestDto.getEmail());
 
+      User user = userRepository.findByEmail(loginRequestDto.getEmail())
+              .orElseThrow(()-> {
+                  log.warn("User not found for email: {}",loginRequestDto.getEmail());
+                  throw new ResourceNotFoundException("Invalid email or password");
+              });
+
+      if(!PasswordUtils.checkPassword(loginRequestDto.getPassword(), user.getPassword())) {
+          log.warn("Invalid password attempt for email: {}",loginRequestDto.getEmail());
+          throw new BadCredentialsException("Invalid email or password");
+      }
+
+      String token = jwtService.generateAccessToken(user);
+      log.info("Jwt generated for user id: {}",user.getId());
+
+      return token;
     }
 }
