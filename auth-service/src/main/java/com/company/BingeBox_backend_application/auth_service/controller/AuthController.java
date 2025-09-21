@@ -9,10 +9,7 @@ import com.company.BingeBox_backend_application.auth_service.service.AuthService
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RequestMapping("/auth")
@@ -35,5 +32,13 @@ public class AuthController {
         log.info("Received login request for email: {}", loginRequest.getEmail());
         String token = authService.login(loginRequest);
         return ResponseEntity.ok(new ApiResponse<>(token));
+    }
+
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponseDto>> getCurrentUser(@RequestHeader("Authorization") String authHeader) {
+        log.info("Fetching current user from token");
+        UserResponseDto response = authService.getCurrentUser(authHeader);
+        return ResponseEntity.ok(new ApiResponse<>(response));
     }
 }

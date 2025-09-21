@@ -8,6 +8,7 @@ import com.company.BingeBox_backend_application.auth_service.exceptions.Resource
 import com.company.BingeBox_backend_application.auth_service.exceptions.RuntimeConflictException;
 import com.company.BingeBox_backend_application.auth_service.repository.UserRepository;
 import com.company.BingeBox_backend_application.auth_service.utils.PasswordUtils;
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -68,5 +69,20 @@ public class AuthService {
                 .orElseThrow(()-> new ResourceNotFoundException("User not found with Id: "+userId));
 
         return modelMapper.map(user, UserResponseDto.class);
+    }
+
+    // fetch user from JWT token
+    public UserResponseDto getCurrentUser(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            log.warn("Missing or invalid Authorization header");
+            throw new BadCredentialsException("Invalid or missing token");
+        }
+
+        String token = authHeader.substring(7);
+        Claims claims = jwtService.extractAllClaims(token);
+        Long userId = claims.get("userId", Long.class);
+
+        log.info("Extracted userId {} from token", userId);
+        return getUserById(userId);
     }
 }
