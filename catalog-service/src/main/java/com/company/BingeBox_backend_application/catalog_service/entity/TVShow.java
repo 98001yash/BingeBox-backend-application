@@ -60,5 +60,22 @@ public class TVShow {
     )
     private Set<Actor> actors;
 
+
+    @ManyToMany
+    @JoinTable(
+            name = "tvshow_directors",
+            joinColumns = @JoinColumn(name = "tvshow_id"),
+            inverseJoinColumns = @JoinColumn(name = "director_id")
+    )
+    private Set<Director> directors;
+
+    @ManyToMany
+    @JoinTable(
+            name = "tvshow_producers",
+            joinColumns = @JoinColumn(name = "tvshow_id"),
+            inverseJoinColumns = @JoinColumn(name = "producer_id")
+    )
+    private Set<Producer> producers;
+
 }
 
