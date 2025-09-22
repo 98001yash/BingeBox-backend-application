@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tv_shows")
@@ -29,10 +30,14 @@ public class TVShow {
     private String thumbnailUrl;
     private String trailerUrl;
 
-    @ElementCollection
-    @CollectionTable(name = "tvshow_genres", joinColumns = @JoinColumn(name = "tvshow_id"))
-    @Column(name = "genre")
-    private List<String> genres;
+    @ManyToMany
+    @JoinTable(
+            name = "tvshow_genres",
+            joinColumns = @JoinColumn(name = "tvshow_id"),
+            inverseJoinColumns = @JoinColumn(name = "genre_id")
+    )
+    private Set<Genre> genres;
+
 
     @ElementCollection
     @CollectionTable(name = "tvshow_cast", joinColumns = @JoinColumn(name = "tvshow_id"))
