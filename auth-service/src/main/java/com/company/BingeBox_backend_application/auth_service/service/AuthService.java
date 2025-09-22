@@ -4,6 +4,7 @@ import com.company.BingeBox_backend_application.auth_service.dtos.LoginRequestDt
 import com.company.BingeBox_backend_application.auth_service.dtos.SignupRequestDto;
 import com.company.BingeBox_backend_application.auth_service.dtos.UserResponseDto;
 import com.company.BingeBox_backend_application.auth_service.entities.User;
+import com.company.BingeBox_backend_application.auth_service.enums.Role;
 import com.company.BingeBox_backend_application.auth_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.auth_service.exceptions.RuntimeConflictException;
 import com.company.BingeBox_backend_application.auth_service.repository.UserRepository;
@@ -24,23 +25,28 @@ public class AuthService {
     private final ModelMapper modelMapper;
     private final JwtService jwtService;
 
-    // signup new user
-    public UserResponseDto signup(SignupRequestDto signupRequestDto){
-        log.info("Attempting to signup for email: {}",signupRequestDto.getEmail());
+    public UserResponseDto signup(SignupRequestDto signupRequestDto) {
+        log.info("Attempting to signup for email: {}", signupRequestDto.getEmail());
 
-        if(userRepository.existsByEmail(signupRequestDto.getEmail())){
-            log.warn("Email already exists: {}",signupRequestDto.getEmail());
+        if (userRepository.existsByEmail(signupRequestDto.getEmail())) {
+            log.warn("Email already exists: {}", signupRequestDto.getEmail());
             throw new RuntimeConflictException("Email already registered");
         }
 
         User user = modelMapper.map(signupRequestDto, User.class);
         user.setPassword(PasswordUtils.hashPassword(signupRequestDto.getPassword()));
 
+        user.setRole(Role.USER);
+        user.setEnabled(true);
+        user.setLocked(false);
+
         User savedUser = userRepository.save(user);
-        log.info("User registered successfully with id: {}",savedUser.getId());
+        log.info("User registered successfully with id: {}", savedUser.getId());
 
         return modelMapper.map(savedUser, UserResponseDto.class);
     }
+
+
 
 
     public String login(LoginRequestDto loginRequestDto){
