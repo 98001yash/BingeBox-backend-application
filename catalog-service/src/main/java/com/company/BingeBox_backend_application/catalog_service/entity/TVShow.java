@@ -4,16 +4,17 @@ package com.company.BingeBox_backend_application.catalog_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.List;
 
 @Entity
-@Table(name = "movies")
+@Table(name = "tv_shows")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Movie {
+public class TVShow {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,19 +28,14 @@ public class Movie {
 
     private String thumbnailUrl;
     private String trailerUrl;
-    private String contentUrl;
-
-    private int releaseYear;
-
-    private int duration;
 
     @ElementCollection
-    @CollectionTable(name = "movie_genres", joinColumns = @JoinColumn(name = "movie_id"))
+    @CollectionTable(name = "tvshow_genres", joinColumns = @JoinColumn(name = "tvshow_id"))
     @Column(name = "genre")
     private List<String> genres;
 
     @ElementCollection
-    @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
+    @CollectionTable(name = "tvshow_cast", joinColumns = @JoinColumn(name = "tvshow_id"))
     @Column(name = "actor")
     private List<String> cast;
 
@@ -47,4 +43,7 @@ public class Movie {
 
     private boolean featured = false;
 
+    @OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Season> seasons;
 }
+
