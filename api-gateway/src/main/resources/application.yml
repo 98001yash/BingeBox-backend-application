@@ -19,12 +19,17 @@ spring:
               - PUT
               - DELETE
               - OPTIONS
-      routes:
-        - id: auth-service
-          uri: lb://auth-service
-          predicates:
-            - Path=/auth/**
+    routes:
+      - id: auth-service
+        uri: lb://auth-service
+        predicates:
+          - Path=/auth/**
 
+
+      - id: catalog-service
+        uri: lb://catalog-service
+        predicates:
+          - Path=/catalog/**
 
 
 
