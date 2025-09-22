@@ -77,6 +77,11 @@ public class Movie {
     private Set<Producer> producers;
 
 
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
+
+
 
 
 }
