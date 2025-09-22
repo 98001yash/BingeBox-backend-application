@@ -50,5 +50,15 @@ public class TVShow {
 
     @OneToMany(mappedBy = "tvShow", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Season> seasons;
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "tvshow_actors",
+            joinColumns = @JoinColumn(name = "tvshow_id"),
+            inverseJoinColumns = @JoinColumn(name = "actor_id")
+    )
+    private Set<Actor> actors;
+
 }
 
