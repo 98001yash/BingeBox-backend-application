@@ -90,12 +90,57 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public List<MovieResponseDto> getAllMovies() {
-        return List.of();
+       return movieRepository.findAll().stream()
+               .map(this:: convertToResponseDto)
+               .collect(Collectors.toList());
     }
 
     @Override
-    public MovieResponseDto updateMovie(Long id, MovieRequestDto movieRequestDto) {
-        return null;
+    public MovieResponseDto updateMovie(Long id, MovieRequestDto dto) {
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id " + id));
+
+        // Update fields
+        movie.setTitle(dto.getTitle());
+        movie.setDescription(dto.getDescription());
+        movie.setThumbnailUrl(dto.getThumbnailUrl());
+        movie.setTrailerUrl(dto.getTrailerUrl());
+        movie.setContentUrl(dto.getContentUrl());
+        movie.setReleaseYear(dto.getReleaseYear());
+        movie.setDuration(dto.getDuration());
+        movie.setCast(dto.getCast());
+        movie.setMaturityRating(dto.getMaturityRating());
+        movie.setFeatured(dto.isFeatured());
+
+        // Update relationships
+        if (dto.getGenreIds() != null) {
+            Set<Genre> genres = genreRepository.findAllById(dto.getGenreIds()).stream().collect(Collectors.toSet());
+            movie.setGenres(genres);
+        }
+
+        if (dto.getActorIds() != null) {
+            Set<Actor> actors = actorRepository.findAllById(dto.getActorIds()).stream().collect(Collectors.toSet());
+            movie.setActors(actors);
+        }
+
+        if (dto.getDirectorIds() != null) {
+            Set<Director> directors = directorRepository.findAllById(dto.getDirectorIds()).stream().collect(Collectors.toSet());
+            movie.setDirectors(directors);
+        }
+
+        if (dto.getProducerIds() != null) {
+            Set<Producer> producers = producerRepository.findAllById(dto.getProducerIds()).stream().collect(Collectors.toSet());
+            movie.setProducers(producers);
+        }
+
+        if (dto.getCategoryId() != null) {
+            Category category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Category not found with id " + dto.getCategoryId()));
+            movie.setCategory(category);
+        }
+
+        Movie updatedMovie = movieRepository.save(movie);
+        return convertToResponseDto(updatedMovie);
     }
 
     @Override
