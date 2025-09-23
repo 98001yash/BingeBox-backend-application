@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,12 +28,17 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto getCategoryById(Long id) {
-        return null;
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Category not found with id: "+id));
+        return modelMapper.map(category, CategoryDto.class);
     }
 
     @Override
     public List<CategoryDto> getAllCategories() {
-        return List.of();
+        return categoryRepository.findAll()
+                .stream()
+                .map(category->modelMapper.map(category, CategoryDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override
