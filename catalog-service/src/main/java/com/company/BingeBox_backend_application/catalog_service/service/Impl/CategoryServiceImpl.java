@@ -43,11 +43,18 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto updateCategory(Long id, CategoryDto categoryDto) {
-        return null;
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Category not found with id: "+id));
+
+        category.setName(categoryDto.getName());
+        Category updatedCategory = categoryRepository.save(category);
+        return modelMapper.map(updatedCategory, CategoryDto.class);
     }
 
     @Override
     public void deleteCategory(Long id) {
-
+       Category category = categoryRepository.findById(id)
+               .orElseThrow(()->new RuntimeException("Category not found with id:  "+id));
+       categoryRepository.delete(category);
     }
 }
