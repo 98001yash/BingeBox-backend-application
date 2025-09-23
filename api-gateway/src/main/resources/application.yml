@@ -29,7 +29,12 @@ spring:
       - id: catalog-service
         uri: lb://catalog-service
         predicates:
-          - Path=/catalog/**
+          - Path=/api/v1/catalog/**
+        filters:
+          - StripPrefix=2
+
+
+
 
 
 
