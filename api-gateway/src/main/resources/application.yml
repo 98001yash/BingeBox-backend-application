@@ -19,7 +19,7 @@ spring:
               - PUT
               - DELETE
               - OPTIONS
-    routes:
+      routes:
       - id: auth-service
         uri: lb://auth-service
         predicates:
@@ -29,15 +29,7 @@ spring:
       - id: catalog-service
         uri: lb://catalog-service
         predicates:
-          - Path=/api/v1/catalog/**
-        filters:
-          - StripPrefix=2
-
-
-
-
-
-
+          - Path=/catalog/**
 
 eureka:
   client:
