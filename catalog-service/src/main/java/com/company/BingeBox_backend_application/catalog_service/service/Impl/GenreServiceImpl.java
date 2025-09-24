@@ -18,7 +18,6 @@ import java.util.stream.Collectors;
 public class GenreServiceImpl implements GenreService {
 
 
-    private final GenreService genreService;
     private final GenreRepository genreRepository;
 
 

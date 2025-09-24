@@ -27,7 +27,7 @@ public class GenreController {
     }
 
     @GetMapping
-    public ResponseEntity<List<GenreDto>> getAllCourses(){
+    public ResponseEntity<List<GenreDto>> getAllGenres(){
         return ResponseEntity.ok(genreService.getAllGenres());
     }
 
@@ -38,10 +38,11 @@ public class GenreController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteGenre(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGenre(@PathVariable Long id) {
         genreService.deleteGenre(id);
-        return ResponseEntity.ok("Genre deleted successfully!");
+        return ResponseEntity.noContent().build(); // 204 No Content
     }
+
 
 
 }
