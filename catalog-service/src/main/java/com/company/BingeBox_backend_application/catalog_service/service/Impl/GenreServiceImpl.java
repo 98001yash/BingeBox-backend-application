@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,21 +37,40 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public GenreDto getGenreById(Long id) {
-        return null;
+        Genre genre = genreRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Genre not found with id: "+id));
+        return mapToDto(genre);
     }
 
     @Override
-    public GenreDto getAllGenres() {
-        return null;
+    public List<GenreDto> getAllGenres() {
+        return genreRepository.findAll()
+                .stream()
+                .map(this:: mapToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public GenreDto updateGenre(Long id, GenreDto genreDto) {
-        return null;
+        Genre genre = genreRepository.findById(id)
+                .orElseThrow(()->new RuntimeException("Genre not found with id: "+id));
+
+        genre.setName(genreDto.getName());
+        Genre updatedGenre = genreRepository.save(genre);
+        return mapToDto(updatedGenre);
     }
 
     @Override
     public void deleteGenre(Long id) {
+     Genre genre = genreRepository.findById(id)
+             .orElseThrow(()->new RuntimeException("Genre not found with id: "+id));
+     genreRepository.delete(genre);
+    }
 
+    public GenreDto mapToDto(Genre genre){
+        return GenreDto.builder()
+                .id(genre.getId())
+                .name(genre.getName())
+                .build();
     }
 }
