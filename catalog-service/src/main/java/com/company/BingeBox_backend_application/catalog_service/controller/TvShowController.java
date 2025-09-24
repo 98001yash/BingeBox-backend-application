@@ -6,10 +6,9 @@ import com.company.BingeBox_backend_application.catalog_service.service.TVShowSe
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/catalog/TvShows")
@@ -20,8 +19,28 @@ public class TvShowController {
     private final TVShowService tvShowService;
 
     @PostMapping
-    public ResponseEntity<TvShowResponseDto>  createTvShow(@RequestBody TvShowRequestDto tvShowRequestDto){
-        log.info("Creatng a new TvShow with title: {}",tvShowRequestDto.getTitle());
-        return  ResponseEntity.ok(tvShowService.createTvShow(tvShowRequestDto));
+    public ResponseEntity<TvShowResponseDto> createTvShow(@RequestBody TvShowRequestDto dto) {
+        log.info("Creating new TV show with title: {}", dto.getTitle());
+        return ResponseEntity.ok(tvShowService.createTvShow(dto));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TvShowResponseDto> getTvShowById(@PathVariable Long id) {
+        log.info("Fetching TV show with id: {}", id);
+        return ResponseEntity.ok(tvShowService.getTvShowById(id));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<TvShowResponseDto>> getAllTvShows() {
+        log.info("Fetching all TV shows");
+        return ResponseEntity.ok(tvShowService.getAllTvShows());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TvShowResponseDto> updateTvShow(
+            @PathVariable Long id,
+            @RequestBody TvShowRequestDto dto) {
+        log.info("Updating TV show with id: {}", id);
+        return ResponseEntity.ok(tvShowService.updateTvShow(id, dto));
     }
 }
