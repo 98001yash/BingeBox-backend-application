@@ -43,4 +43,12 @@ public class TvShowController {
         log.info("Updating TV show with id: {}", id);
         return ResponseEntity.ok(tvShowService.updateTvShow(id, dto));
     }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteTvShow(@PathVariable Long id) {
+        log.info("Deleting TV show with id: {}", id);
+        tvShowService.deleteTvShow(id);
+        return ResponseEntity.ok("TV show deleted successfully with id: " + id);
+    }
 }
