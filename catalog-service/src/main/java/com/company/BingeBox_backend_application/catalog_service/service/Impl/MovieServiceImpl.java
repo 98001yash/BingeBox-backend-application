@@ -6,6 +6,7 @@ import com.company.BingeBox_backend_application.catalog_service.entity.*;
 import com.company.BingeBox_backend_application.catalog_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.catalog_service.repository.*;
 import com.company.BingeBox_backend_application.catalog_service.service.MovieService;
+import com.company.BingeBox_backend_application.catalog_service.specification.MovieSpecification;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -264,7 +265,33 @@ public class MovieServiceImpl implements MovieService {
      movieRepository.save(movie);
     }
 
+    @Override
+    public List<MovieResponseDto> searchMovies(String title, Set<Long> genreIds, Set<Long> actorIds,
+                                               Set<Long> directorIds, Set<Long> producerIds,
+                                               Long categoryId, Boolean featured) {
+
+        List<Movie> movies = movieRepository.findAll(
+                MovieSpecification.filterBy(title, genreIds, actorIds, directorIds, producerIds, categoryId, featured)
+        );
+
+        return movies.stream().map(this::mapToResponse).collect(Collectors.toList());
+    }
+
     private MovieResponseDto convertToResponseDto(Movie movie) {
         return modelMapper.map(movie, MovieResponseDto.class);
+    }
+
+
+    private MovieResponseDto mapToResponse(Movie movie) {
+        // Map entity to DTO (reuse your existing mapping logic)
+        return MovieResponseDto.builder()
+                .id(movie.getId())
+                .title(movie.getTitle())
+                .description(movie.getDescription())
+                .thumbnailUrl(movie.getThumbnailUrl())
+                .trailerUrl(movie.getTrailerUrl())
+                .cast(movie.getCast())
+                .featured(movie.isFeatured())
+                .build();
     }
 }

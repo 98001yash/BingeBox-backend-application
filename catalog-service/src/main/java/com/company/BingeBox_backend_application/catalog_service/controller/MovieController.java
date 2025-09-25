@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/catalog/movies")
@@ -123,5 +124,19 @@ public class MovieController {
     public ResponseEntity<Void> removeCategory(@PathVariable Long movieId, @PathVariable Long categoryId) {
         movieService.removeCategoryFromMovie(movieId, categoryId);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/search")
+    public List<MovieResponseDto> searchMovies(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Set<Long> genreIds,
+            @RequestParam(required = false) Set<Long> actorIds,
+            @RequestParam(required = false) Set<Long> directorIds,
+            @RequestParam(required = false) Set<Long> producerIds,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Boolean featured
+    ) {
+        return movieService.searchMovies(title, genreIds, actorIds, directorIds, producerIds, categoryId, featured);
     }
 }
