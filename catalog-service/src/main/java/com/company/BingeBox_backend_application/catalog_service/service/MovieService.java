@@ -4,6 +4,7 @@ import com.company.BingeBox_backend_application.catalog_service.dtos.MovieReques
 import com.company.BingeBox_backend_application.catalog_service.dtos.MovieResponseDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface MovieService {
 
@@ -32,4 +33,15 @@ public interface MovieService {
 
     void addCategoryToMovie(Long movieId, Long categoryId);
     void removeCategoryFromMovie(Long movieId, Long categoryId);
+
+    // search and filter
+    List<MovieResponseDto> searchMovies(
+            String title,
+            Set<Long> genreIds,
+            Set<Long> actorIds,
+            Set<Long> directorIds,
+            Set<Long> producerIds,
+            Long categoryId,
+            Boolean featured
+    );
 }
