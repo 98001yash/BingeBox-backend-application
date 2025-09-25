@@ -16,4 +16,20 @@ public interface MovieService {
     MovieResponseDto updateMovie(Long id, MovieRequestDto movieRequestDto);
 
     void deleteMovie(Long id);
+
+    void addActorToMovie(Long movieId, Long actorId);
+    void removeActorFromMovie(Long movieId, Long actorId);
+
+
+    void addDirectorToMovie(Long movieId, Long producerId);
+    void removeDirectorFromMovie(Long movieId, Long directorId);
+
+    void addProducerToMovie(Long movieId, Long producerId);
+    void removeProducerFromMovie(Long movieId, Long producerId);
+
+    void addGenreToMovie(Long movieId, Long genreId);
+    void removeGenreFromMovie(Long movieId, Long genreId);
+
+    void addCategoryToMovie(Long movieId, Long categoryId);
+    void removeCategoryFromMovie(Long movieId, Long categoryId);
 }
