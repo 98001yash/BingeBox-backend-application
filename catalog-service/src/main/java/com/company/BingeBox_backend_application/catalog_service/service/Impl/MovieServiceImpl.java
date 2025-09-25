@@ -150,6 +150,69 @@ public class MovieServiceImpl implements MovieService {
         movieRepository.delete(movie);
     }
 
+    @Override
+    public void addActorToMovie(Long movieId, Long actorId) {
+        Movie movie = movieRepository.findById(movieId)
+                .orElseThrow(()->new ResourceNotFoundException("Movie not found with id: "+movieId));
+
+        Actor actor = actorRepository.findById(actorId)
+                .orElseThrow(()->new ResourceNotFoundException("Actor not found with id "+actorId));
+
+        movie.getActors().add(actor);
+        movieRepository.save(movie);
+    }
+
+    @Override
+    public void removeActorFromMovie(Long movieId, Long actorId) {
+      Movie movie = movieRepository.findById(movieId)
+              .orElseThrow(()->new ResourceNotFoundException("movie not found with id: "+movieId));
+      Actor actor = actorRepository.findById(actorId)
+              .orElseThrow(()->new ResourceNotFoundException("Actor not found with id: "+actorId));
+
+      movie.getActors().remove(actor);
+      movieRepository.save(movie);
+    }
+
+    @Override
+    public void addDirectorToMovie(Long movieId, Long producerId) {
+
+    }
+
+    @Override
+    public void removeDirectorFromMovie(Long movieId, Long directorId) {
+
+    }
+
+    @Override
+    public void addProducerToMovie(Long movieId, Long producerId) {
+
+    }
+
+    @Override
+    public void removeProducerFromMovie(Long movieId, Long producerId) {
+
+    }
+
+    @Override
+    public void addGenreToMovie(Long movieId, Long genreId) {
+
+    }
+
+    @Override
+    public void removeGenreFromMovie(Long movieId, Long genreId) {
+
+    }
+
+    @Override
+    public void addCategoryToMovie(Long movieId, Long categoryId) {
+
+    }
+
+    @Override
+    public void removeCategoryFromMovie(Long movieId, Long categoryId) {
+
+    }
+
 
     private MovieResponseDto convertToResponseDto(Movie movie) {
         return modelMapper.map(movie, MovieResponseDto.class);
