@@ -223,12 +223,24 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public void addGenreToMovie(Long movieId, Long genreId) {
+      Movie movie = movieRepository.findById(movieId)
+              .orElseThrow(()->new ResourceNotFoundException("Movie not found with id: "+movieId));
+      Genre genre = genreRepository.findById(genreId)
+              .orElseThrow(()->new ResourceNotFoundException("Genre not found with id: "+genreId));
 
+      movie.getGenres().add(genre);
+      movieRepository.save(movie);
     }
 
     @Override
     public void removeGenreFromMovie(Long movieId, Long genreId) {
+      Movie movie = movieRepository.findById(movieId)
+              .orElseThrow(()->new ResourceNotFoundException("Movie not found with id "+movieId));
+      Genre genre = genreRepository.findById(genreId)
+              .orElseThrow(()->new ResourceNotFoundException("Genre not found with id: "+genreId));
 
+      movie.getGenres().remove(genre);
+      movieRepository.save(movie);
     }
 
     @Override
