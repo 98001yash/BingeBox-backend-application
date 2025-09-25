@@ -15,4 +15,18 @@ public interface TVShowService {
     TvShowResponseDto updateTvShow(Long id, TvShowRequestDto tvShowRequestDto);
 
     void deleteTvShow(Long id);
+
+    // ========== Relationship endpoints
+    TvShowResponseDto addGenreToTvShow(Long tvShowId, Long genreId);
+    TvShowResponseDto removeGenreFromTvShow(Long tvShowId, Long actorId);
+
+    TvShowResponseDto addActorToTvShow(Long tvShowId, Long actorId);
+    TvShowResponseDto removeActorFromTvShow(Long tvShowId, Long actorId);
+
+
+    TvShowResponseDto addDirectorToTvShow(Long tvShowId, Long directorId);
+    TvShowResponseDto removeDirectorFromTvShow(Long tvShowId, Long directorId);
+
+    TvShowResponseDto addProducerToTvShow(Long tvShowId, Long categoryId);
+    TvShowResponseDto removeCategory(Long tvShowId);
 }

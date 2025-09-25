@@ -70,7 +70,7 @@ public class MovieController {
 
 
     //======Director relation==========//
-    @PostMapping("/{movieId}/directors/directorId}")
+    @PostMapping("/{movieId}/directors/{directorId}")
     public ResponseEntity<Void> addDirector(@PathVariable Long movieId, @PathVariable Long directorId){
         movieService.addDirectorToMovie(movieId, directorId);
         return ResponseEntity.ok().build();
@@ -80,5 +80,48 @@ public class MovieController {
     public ResponseEntity<Void> removeDirector(@PathVariable Long movieId, @PathVariable Long directorId){
         movieService.removeDirectorFromMovie(movieId, directorId);
         return ResponseEntity.ok().build();
+    }
+
+    //============Producer relations ================//
+
+    @PostMapping("/{movieId}/producers/{producerId}")
+    public ResponseEntity<Void> addProducer(@PathVariable Long movieId, @PathVariable Long producerId) {
+        movieService.addProducerToMovie(movieId, producerId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{movieId}/producers/{producerId}")
+    public ResponseEntity<Void> removeProducer(@PathVariable Long movieId, @PathVariable Long producerId) {
+        movieService.removeProducerFromMovie(movieId, producerId);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    // --- Genre relations ---
+
+    @PostMapping("/{movieId}/genres/{genreId}")
+    public ResponseEntity<Void> addGenre(@PathVariable Long movieId, @PathVariable Long genreId) {
+        movieService.addGenreToMovie(movieId, genreId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{movieId}/genres/{genreId}")
+    public ResponseEntity<Void> removeGenre(@PathVariable Long movieId, @PathVariable Long genreId) {
+        movieService.removeGenreFromMovie(movieId, genreId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // --- Category relations ---
+
+    @PostMapping("/{movieId}/categories/{categoryId}")
+    public ResponseEntity<Void> addCategory(@PathVariable Long movieId, @PathVariable Long categoryId) {
+        movieService.addCategoryToMovie(movieId, categoryId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{movieId}/categories/{categoryId}")
+    public ResponseEntity<Void> removeCategory(@PathVariable Long movieId, @PathVariable Long categoryId) {
+        movieService.removeCategoryFromMovie(movieId, categoryId);
+        return ResponseEntity.noContent().build();
     }
 }
