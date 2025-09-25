@@ -5,8 +5,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface TVShowRepository extends JpaRepository<TVShow,Long> {
-    Page<TVShow> findAll(Sort orders, Pageable pageable);
+public interface TVShowRepository extends JpaRepository<TVShow, Long>, JpaSpecificationExecutor<TVShow> {
+
 
 }
