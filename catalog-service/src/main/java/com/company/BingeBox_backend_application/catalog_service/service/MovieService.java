@@ -21,7 +21,7 @@ public interface MovieService {
     void removeActorFromMovie(Long movieId, Long actorId);
 
 
-    void addDirectorToMovie(Long movieId, Long producerId);
+    void addDirectorToMovie(Long movieId, Long directorId);
     void removeDirectorFromMovie(Long movieId, Long directorId);
 
     void addProducerToMovie(Long movieId, Long producerId);
