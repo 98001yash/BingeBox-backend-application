@@ -52,4 +52,18 @@ public class MovieController {
         movieService.deleteMovie(id);
         return ResponseEntity.ok("Movie deleted successfully with id: " + id);
     }
+
+                //.....//
+    @PostMapping("/{movieId}/actor/{actorId}")
+    public ResponseEntity<Void> addActor(@PathVariable Long movieId, @PathVariable Long actorId){
+        movieService.addActorToMovie(movieId, actorId);
+        return ResponseEntity.ok().build();
+    }
+
+
+    @DeleteMapping("/{movieId}/actors/{actorId}")
+    public ResponseEntity<Void> removeActor(@PathVariable Long movieId, @PathVariable Long actorId){
+        movieService.removeActorFromMovie(movieId, actorId);
+        return ResponseEntity.noContent().build();
+    }
 }
