@@ -199,12 +199,26 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public void addProducerToMovie(Long movieId, Long producerId) {
+      Movie movie = movieRepository.findById(movieId)
+              .orElseThrow(()->new ResourceNotFoundException("Movie not found with id: "+movieId));
 
+      Producer producer = producerRepository.findById(producerId)
+              .orElseThrow(()->new ResourceNotFoundException("Producer not found with id: "+producerId));
+
+      movie.getProducers().add(producer);
+      movieRepository.save(movie);
     }
 
     @Override
     public void removeProducerFromMovie(Long movieId, Long producerId) {
+       Movie movie = movieRepository.findById(movieId)
+               .orElseThrow(()->new ResourceNotFoundException("Movie not found with id: "+movieId));
 
+       Producer producer = producerRepository.findById(producerId)
+               .orElseThrow(()->new ResourceNotFoundException("Producer not found with id: "+producerId));
+
+       movie.getProducers().remove(producer);
+       movieRepository.save(movie);
     }
 
     @Override
