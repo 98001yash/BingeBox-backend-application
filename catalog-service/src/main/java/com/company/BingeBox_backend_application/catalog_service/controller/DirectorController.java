@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/directors")
+@RequestMapping("/catalog/directors")
 @RequiredArgsConstructor
 public class DirectorController {
 
