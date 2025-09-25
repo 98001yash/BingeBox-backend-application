@@ -51,4 +51,86 @@ public class TvShowController {
         tvShowService.deleteTvShow(id);
         return ResponseEntity.ok("TV show deleted successfully with id: " + id);
     }
+
+    // ---- Genre
+    @PutMapping("/{tvShowId}/genres/{genreId}")
+    public ResponseEntity<TvShowResponseDto> addGenreToTvShow(@PathVariable Long tvShowId,
+                                                              @PathVariable Long genreId){
+        return ResponseEntity.ok(tvShowService.addGenreToTvShow(tvShowId, genreId));
+    }
+
+    @DeleteMapping("/{tvShowId}/genres/{genreId}")
+    public ResponseEntity<TvShowResponseDto> removeGenreFromTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long genreId
+    ) {
+        return ResponseEntity.ok(tvShowService.removeGenreFromTvShow(tvShowId, genreId));
+    }
+
+    // --- Actor ---
+    @PutMapping("/{tvShowId}/actors/{actorId}")
+    public ResponseEntity<TvShowResponseDto> addActorToTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long actorId
+    ) {
+        return ResponseEntity.ok(tvShowService.addActorToTvShow(tvShowId, actorId));
+    }
+
+    @DeleteMapping("/{tvShowId}/actors/{actorId}")
+    public ResponseEntity<TvShowResponseDto> removeActorFromTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long actorId
+    ) {
+        return ResponseEntity.ok(tvShowService.removeActorFromTvShow(tvShowId, actorId));
+    }
+
+    // --- Director ---
+    @PutMapping("/{tvShowId}/directors/{directorId}")
+    public ResponseEntity<TvShowResponseDto> addDirectorToTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long directorId
+    ) {
+        return ResponseEntity.ok(tvShowService.addDirectorToTvShow(tvShowId, directorId));
+    }
+
+    @DeleteMapping("/{tvShowId}/directors/{directorId}")
+    public ResponseEntity<TvShowResponseDto> removeDirectorFromTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long directorId
+    ) {
+        return ResponseEntity.ok(tvShowService.removeDirectorFromTvShow(tvShowId, directorId));
+    }
+
+    // --- Producer ---
+    @PutMapping("/{tvShowId}/producers/{producerId}")
+    public ResponseEntity<TvShowResponseDto> addProducerToTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long producerId
+    ) {
+        return ResponseEntity.ok(tvShowService.addProducerToTvShow(tvShowId, producerId));
+    }
+
+    @DeleteMapping("/{tvShowId}/producers/{producerId}")
+    public ResponseEntity<TvShowResponseDto> removeProducerFromTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long producerId
+    ) {
+        return ResponseEntity.ok(tvShowService.removeProducerFromTvShow(tvShowId, producerId));
+    }
+
+    // --- Category ---
+    @PutMapping("/{tvShowId}/category/{categoryId}")
+    public ResponseEntity<TvShowResponseDto> addCategoryToTvShow(
+            @PathVariable Long tvShowId,
+            @PathVariable Long categoryId
+    ) {
+        return ResponseEntity.ok(tvShowService.addCategoryToTvShow(tvShowId, categoryId));
+    }
+
+    @DeleteMapping("/{tvShowId}/category")
+    public ResponseEntity<TvShowResponseDto> removeCategoryFromTvShow(
+            @PathVariable Long tvShowId
+    ) {
+        return ResponseEntity.ok(tvShowService.removeCategoryFromTvShow(tvShowId));
+    }
 }

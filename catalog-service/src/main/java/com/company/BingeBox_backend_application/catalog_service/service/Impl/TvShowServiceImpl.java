@@ -1,7 +1,9 @@
 package com.company.BingeBox_backend_application.catalog_service.service.Impl;
 
 import com.company.BingeBox_backend_application.catalog_service.dtos.*;
+import com.company.BingeBox_backend_application.catalog_service.entity.Genre;
 import com.company.BingeBox_backend_application.catalog_service.entity.TVShow;
+import com.company.BingeBox_backend_application.catalog_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.catalog_service.repository.*;
 import com.company.BingeBox_backend_application.catalog_service.service.TVShowService;
 import lombok.RequiredArgsConstructor;
@@ -81,6 +83,115 @@ public class TvShowServiceImpl implements TVShowService {
             throw new RuntimeException("TV Show not found with id: " + id);
         }
         tvShowRepository.deleteById(id);
+    }
+
+    @Override
+    public TvShowResponseDto addGenreToTvShow(Long tvShowId, Long genreId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(()->new ResourceNotFoundException("TV show not found"));
+        Genre genre = genreRepository.findById(genreId)
+                .orElseThrow(()->new ResourceNotFoundException("Genre not found"));
+
+        tvShow.getGenres().add(genre);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto removeGenreFromTvShow(Long tvShowId, Long genreId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found"));
+        Genre genre = genreRepository.findById(genreId)
+                .orElseThrow(() -> new ResourceNotFoundException("Genre not found"));
+
+        tvShow.getGenres().remove(genre);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto addActorToTvShow(Long tvShowId, Long actorId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found"));
+        var actor = actorRepository.findById(actorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Actor not found"));
+
+        tvShow.getActors().add(actor);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto removeActorFromTvShow(Long tvShowId, Long actorId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found"));
+        var actor = actorRepository.findById(actorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Actor not found"));
+
+        tvShow.getActors().remove(actor);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto addDirectorToTvShow(Long tvShowId, Long directorId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found"));
+        var director = directorRepository.findById(directorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Director not found"));
+
+        tvShow.getDirectors().add(director);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto removeDirectorFromTvShow(Long tvShowId, Long directorId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found"));
+        var director = directorRepository.findById(directorId)
+                .orElseThrow(() -> new ResourceNotFoundException("Director not found"));
+
+        tvShow.getDirectors().remove(director);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto addProducerToTvShow(Long tvShowId, Long producerId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found"));
+        var producer = producerRepository.findById(producerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Producer not found"));
+
+        tvShow.getProducers().add(producer);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto removeProducerFromTvShow(Long tvShowId, Long producerId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found"));
+        var producer = producerRepository.findById(producerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Producer not found"));
+
+        tvShow.getProducers().remove(producer);
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto addCategoryToTvShow(Long tvShowId, Long categoryId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found with id: " + tvShowId));
+
+        var category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+
+        tvShow.setCategory(category); // just set the category
+        return mapToResponse(tvShowRepository.save(tvShow));
+    }
+
+    @Override
+    public TvShowResponseDto removeCategoryFromTvShow(Long tvShowId) {
+        TVShow tvShow = tvShowRepository.findById(tvShowId)
+                .orElseThrow(() -> new ResourceNotFoundException("TV show not found with id: " + tvShowId));
+
+        tvShow.setCategory(null); // remove the category
+        return mapToResponse(tvShowRepository.save(tvShow));
     }
 
     // --- mapping helpers ---
