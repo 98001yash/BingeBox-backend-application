@@ -1,4 +1,4 @@
-package com.company.BingeBox_backend_application.catalog_service.service.Impl;
+package com.company.BingeBox_backend_application.catalog_service.service;
 
 import com.company.BingeBox_backend_application.catalog_service.dtos.EpisodeDto;
 

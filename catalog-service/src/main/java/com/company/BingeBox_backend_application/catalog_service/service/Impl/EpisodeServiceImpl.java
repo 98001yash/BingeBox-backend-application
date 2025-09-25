@@ -7,6 +7,7 @@ import com.company.BingeBox_backend_application.catalog_service.entity.Season;
 import com.company.BingeBox_backend_application.catalog_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.catalog_service.repository.EpisodeRepository;
 import com.company.BingeBox_backend_application.catalog_service.repository.SeasonRepository;
+import com.company.BingeBox_backend_application.catalog_service.service.EpisodeService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class EpisodeServiceImpl implements EpisodeService{
+public class EpisodeServiceImpl implements EpisodeService {
 
     private final EpisodeRepository episodeRepository;
     private final SeasonRepository seasonRepository;
