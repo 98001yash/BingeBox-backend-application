@@ -4,6 +4,7 @@ import com.company.BingeBox_backend_application.catalog_service.dtos.TvShowReque
 import com.company.BingeBox_backend_application.catalog_service.dtos.TvShowResponseDto;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TVShowService {
     TvShowResponseDto createTvShow(TvShowRequestDto tvShowRequestDto);
@@ -31,4 +32,15 @@ public interface TVShowService {
 
     TvShowResponseDto removeCategoryFromTvShow(Long tvShowId);
     TvShowResponseDto addCategoryToTvShow(Long tvShowId, Long categoryId);
+
+    // search and filter
+    List<TvShowResponseDto> searchTvShows(
+            String title,
+            Set<Long> genreIds,
+            Set<Long> actorIds,
+            Set<Long> directorIds,
+            Set<Long> producerIds,
+            Long categoryId,
+            Boolean featured
+    );
 }

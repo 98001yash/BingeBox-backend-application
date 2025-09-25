@@ -5,7 +5,7 @@ import com.company.BingeBox_backend_application.catalog_service.entity.Genre;
 import com.company.BingeBox_backend_application.catalog_service.entity.TVShow;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.Set;
 
 public class TvShowSpecification {
 
-    public static Specification<TVShow> filterBy(
+    public static Sort filterBy(
             String title,
             Set<Long> genreIds,
             Set<Long> actorIds,

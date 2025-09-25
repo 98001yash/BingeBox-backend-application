@@ -6,10 +6,12 @@ import com.company.BingeBox_backend_application.catalog_service.entity.TVShow;
 import com.company.BingeBox_backend_application.catalog_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.catalog_service.repository.*;
 import com.company.BingeBox_backend_application.catalog_service.service.TVShowService;
+import com.company.BingeBox_backend_application.catalog_service.specification.TvShowSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -184,6 +186,25 @@ public class TvShowServiceImpl implements TVShowService {
         tvShow.setCategory(category); // just set the category
         return mapToResponse(tvShowRepository.save(tvShow));
     }
+
+    @Override
+    public List<TvShowResponseDto> searchTvShows(String title,
+                                                 Set<Long> genreIds,
+                                                 Set<Long> actorIds,
+                                                 Set<Long> directorIds,
+                                                 Set<Long> producerIds,
+                                                 Long categoryId,
+                                                 Boolean featured) {
+
+        List<TVShow> tvShows = tvShowRepository.findAll(
+                TvShowSpecification.filterBy(title, genreIds, actorIds, directorIds, producerIds, categoryId, featured)
+        );
+
+        return tvShows.stream()
+                .map(this::mapToResponse)
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public TvShowResponseDto removeCategoryFromTvShow(Long tvShowId) {
