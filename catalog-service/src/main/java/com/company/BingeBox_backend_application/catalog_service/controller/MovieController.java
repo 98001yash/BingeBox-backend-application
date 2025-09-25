@@ -53,7 +53,8 @@ public class MovieController {
         return ResponseEntity.ok("Movie deleted successfully with id: " + id);
     }
 
-                //.....//
+                //======Actor relations=====//
+
     @PostMapping("/{movieId}/actor/{actorId}")
     public ResponseEntity<Void> addActor(@PathVariable Long movieId, @PathVariable Long actorId){
         movieService.addActorToMovie(movieId, actorId);
@@ -65,5 +66,19 @@ public class MovieController {
     public ResponseEntity<Void> removeActor(@PathVariable Long movieId, @PathVariable Long actorId){
         movieService.removeActorFromMovie(movieId, actorId);
         return ResponseEntity.noContent().build();
+    }
+
+
+    //======Director relation==========//
+    @PostMapping("/{movieId}/directors/directorId}")
+    public ResponseEntity<Void> addDirector(@PathVariable Long movieId, @PathVariable Long directorId){
+        movieService.addDirectorToMovie(movieId, directorId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{movieId}/directors/{directorId}")
+    public ResponseEntity<Void> removeDirector(@PathVariable Long movieId, @PathVariable Long directorId){
+        movieService.removeDirectorFromMovie(movieId, directorId);
+        return ResponseEntity.ok().build();
     }
 }
