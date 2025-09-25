@@ -8,6 +8,9 @@ import com.company.BingeBox_backend_application.catalog_service.repository.*;
 import com.company.BingeBox_backend_application.catalog_service.service.TVShowService;
 import com.company.BingeBox_backend_application.catalog_service.specification.TvShowSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -188,21 +191,26 @@ public class TvShowServiceImpl implements TVShowService {
     }
 
     @Override
-    public List<TvShowResponseDto> searchTvShows(String title,
+    public Page<TvShowResponseDto> searchTvShows(String title,
                                                  Set<Long> genreIds,
                                                  Set<Long> actorIds,
                                                  Set<Long> directorIds,
                                                  Set<Long> producerIds,
                                                  Long categoryId,
-                                                 Boolean featured) {
+                                                 Boolean featured,
+                                                 Pageable pageable) {
 
-        List<TVShow> tvShows = tvShowRepository.findAll(
-                TvShowSpecification.filterBy(title, genreIds, actorIds, directorIds, producerIds, categoryId, featured)
+        Page<TVShow> tvShowPage = tvShowRepository.findAll(
+                TvShowSpecification.filterBy(title, genreIds, actorIds, directorIds, producerIds, categoryId, featured),
+                pageable
         );
 
-        return tvShows.stream()
+        List<TvShowResponseDto> dtoList = tvShowPage.getContent()
+                .stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+
+        return new PageImpl<>(dtoList, pageable, tvShowPage.getTotalElements());
     }
 
 

@@ -2,6 +2,8 @@ package com.company.BingeBox_backend_application.catalog_service.service;
 
 import com.company.BingeBox_backend_application.catalog_service.dtos.TvShowRequestDto;
 import com.company.BingeBox_backend_application.catalog_service.dtos.TvShowResponseDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Set;
@@ -34,13 +36,14 @@ public interface TVShowService {
     TvShowResponseDto addCategoryToTvShow(Long tvShowId, Long categoryId);
 
     // search and filter
-    List<TvShowResponseDto> searchTvShows(
+    Page<TvShowResponseDto> searchTvShows(
             String title,
             Set<Long> genreIds,
             Set<Long> actorIds,
             Set<Long> directorIds,
             Set<Long> producerIds,
             Long categoryId,
-            Boolean featured
+            Boolean featured,
+            Pageable pageable
     );
 }

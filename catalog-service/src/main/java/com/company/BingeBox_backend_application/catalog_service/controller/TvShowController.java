@@ -5,10 +5,15 @@ import com.company.BingeBox_backend_application.catalog_service.dtos.TvShowRespo
 import com.company.BingeBox_backend_application.catalog_service.service.TVShowService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/catalog/TvShows")
@@ -133,4 +138,29 @@ public class TvShowController {
     ) {
         return ResponseEntity.ok(tvShowService.removeCategoryFromTvShow(tvShowId));
     }
+
+
+    //   ==========  Search and filter  ==============   //
+
+
+    @GetMapping("/search")
+    public Page<TvShowResponseDto> searchTvShows(
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) Set<Long> genreIds,
+            @RequestParam(required = false) Set<Long> actorIds,
+            @RequestParam(required = false) Set<Long> directorIds,
+            @RequestParam(required = false) Set<Long> producerIds,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Boolean featured,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sortBy,
+            @RequestParam(defaultValue = "asc") String sortDir
+    ) {
+        Sort sort = sortDir.equalsIgnoreCase("asc") ? Sort.by(sortBy).ascending() : Sort.by(sortBy).descending();
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        return tvShowService.searchTvShows(title, genreIds, actorIds, directorIds, producerIds, categoryId, featured, pageable);
+    }
+
 }
