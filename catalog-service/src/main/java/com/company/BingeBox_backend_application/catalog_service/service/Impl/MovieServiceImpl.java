@@ -245,14 +245,24 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public void addCategoryToMovie(Long movieId, Long categoryId) {
+       Movie movie = movieRepository.findById(movieId)
+               .orElseThrow(()->new ResourceNotFoundException("Movie not found with id "+movieId));
 
+       Category category = categoryRepository.findById(categoryId)
+               .orElseThrow(()->new ResourceNotFoundException("Category not found with id: "+categoryId));
+
+       movie.setCategory(category);
+       movieRepository.save(movie);
     }
 
     @Override
     public void removeCategoryFromMovie(Long movieId, Long categoryId) {
+     Movie movie = movieRepository.findById(movieId)
+             .orElseThrow(()-> new ResourceNotFoundException("Movie not found with id "+movieId));
 
+     movie.setCategory(null);
+     movieRepository.save(movie);
     }
-
 
     private MovieResponseDto convertToResponseDto(Movie movie) {
         return modelMapper.map(movie, MovieResponseDto.class);
