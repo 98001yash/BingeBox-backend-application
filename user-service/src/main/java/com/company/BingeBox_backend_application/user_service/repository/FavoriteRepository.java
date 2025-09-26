@@ -8,10 +8,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FavoriteRepository extends JpaRepository<FavoriteItem, Long> {
-    List<FavoriteItem> findByUser(UserProfile user);
+    // Fetch all favorite items for a user
+    List<FavoriteItem> findByUser_UserId(Long userId);
 
-    Optional<FavoriteItem> findByUserAndContentIdAndContentType(UserProfile user, Long contentId, String contentType);
+    // Find a specific favorite item by user + content
+    Optional<FavoriteItem> findByUser_UserIdAndContentIdAndContentType(Long userId, Long contentId, String contentType);
 
-    boolean existsByUserAndContentIdAndContentType(UserProfile user, Long contentId, String contentType);
-
+    // Check if a content already exists in favorites
+    boolean existsByUser_UserIdAndContentIdAndContentType(Long userId, Long contentId, String contentType);
 }
