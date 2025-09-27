@@ -1,5 +1,6 @@
 package com.company.BingeBox_backend_application.user_service.controller;
 
+import com.company.BingeBox_backend_application.user_service.auth.RoleAllowed;
 import com.company.BingeBox_backend_application.user_service.dtos.FavoriteItemDto;
 import com.company.BingeBox_backend_application.user_service.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
@@ -17,8 +18,8 @@ public class FavoriteController {
 
     private final FavoriteService favoriteService;
 
-
     @PostMapping
+    @RoleAllowed({"USER"})  // Only users can add to favorites
     public ResponseEntity<FavoriteItemDto> addToFavorites(
             @RequestParam Long contentId,
             @RequestParam String contentType) {
@@ -28,6 +29,7 @@ public class FavoriteController {
     }
 
     @DeleteMapping
+    @RoleAllowed({"USER"})  // Only users can remove from favorites
     public ResponseEntity<Void> removeFromFavorites(
             @RequestParam Long contentId,
             @RequestParam String contentType) {
@@ -37,6 +39,7 @@ public class FavoriteController {
     }
 
     @GetMapping
+    @RoleAllowed({"USER"})  // Only users can view their favorites
     public ResponseEntity<List<FavoriteItemDto>> getUserFavorites() {
         log.info("API Request: Get favorites for current user");
         List<FavoriteItemDto> favorites = favoriteService.getUserFavorites();

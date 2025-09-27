@@ -1,5 +1,6 @@
 package com.company.BingeBox_backend_application.user_service.controller;
 
+import com.company.BingeBox_backend_application.user_service.auth.RoleAllowed;
 import com.company.BingeBox_backend_application.user_service.dtos.WatchlistItemDto;
 import com.company.BingeBox_backend_application.user_service.service.WatchlistService;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ public class WatchlistController {
     private final WatchlistService watchlistService;
 
     @PostMapping
+    @RoleAllowed({"USER"})  // Only users can add
     public ResponseEntity<WatchlistItemDto> addToWatchlist(
             @RequestParam Long contentId,
             @RequestParam String contentType) {
@@ -27,6 +29,7 @@ public class WatchlistController {
     }
 
     @DeleteMapping
+    @RoleAllowed({"USER"})  // Only users can remove
     public ResponseEntity<Void> removeFromWatchlist(
             @RequestParam Long contentId,
             @RequestParam String contentType) {
@@ -36,6 +39,7 @@ public class WatchlistController {
     }
 
     @GetMapping
+    @RoleAllowed({"USER"})  // Only users can get their watchlist
     public ResponseEntity<List<WatchlistItemDto>> getUserWatchlist() {
         log.info("API Request: Get watchlist for current user");
         List<WatchlistItemDto> watchlist = watchlistService.getUserWatchlist();
