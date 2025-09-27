@@ -1,5 +1,6 @@
 package com.company.BingeBox_backend_application.catalog_service.controller;
 
+import com.company.BingeBox_backend_application.catalog_service.auth.RoleAllowed;
 import com.company.BingeBox_backend_application.catalog_service.dtos.TvShowRequestDto;
 import com.company.BingeBox_backend_application.catalog_service.dtos.TvShowResponseDto;
 import com.company.BingeBox_backend_application.catalog_service.service.TVShowService;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -23,25 +23,31 @@ public class TvShowController {
 
     private final TVShowService tvShowService;
 
+    // --- CRUD ---
+
     @PostMapping
+    @RoleAllowed({"ADMIN"})
     public ResponseEntity<TvShowResponseDto> createTvShow(@RequestBody TvShowRequestDto dto) {
         log.info("Creating new TV show with title: {}", dto.getTitle());
         return ResponseEntity.ok(tvShowService.createTvShow(dto));
     }
 
     @GetMapping("/{id}")
+    @RoleAllowed({"ADMIN", "USER", "MODERATOR"})
     public ResponseEntity<TvShowResponseDto> getTvShowById(@PathVariable Long id) {
         log.info("Fetching TV show with id: {}", id);
         return ResponseEntity.ok(tvShowService.getTvShowById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<TvShowResponseDto>> getAllTvShows() {
+    @RoleAllowed({"ADMIN", "USER", "MODERATOR"})
+    public ResponseEntity<Set<TvShowResponseDto>> getAllTvShows() {
         log.info("Fetching all TV shows");
-        return ResponseEntity.ok(tvShowService.getAllTvShows());
+        return ResponseEntity.ok((Set<TvShowResponseDto>) tvShowService.getAllTvShows());
     }
 
     @PutMapping("/{id}")
+    @RoleAllowed({"ADMIN", "MODERATOR"})
     public ResponseEntity<TvShowResponseDto> updateTvShow(
             @PathVariable Long id,
             @RequestBody TvShowRequestDto dto) {
@@ -49,101 +55,91 @@ public class TvShowController {
         return ResponseEntity.ok(tvShowService.updateTvShow(id, dto));
     }
 
-
     @DeleteMapping("/{id}")
+    @RoleAllowed({"ADMIN"})
     public ResponseEntity<String> deleteTvShow(@PathVariable Long id) {
         log.info("Deleting TV show with id: {}", id);
         tvShowService.deleteTvShow(id);
         return ResponseEntity.ok("TV show deleted successfully with id: " + id);
     }
 
-    // ---- Genre
+    // --- Genre ---
     @PutMapping("/{tvShowId}/genres/{genreId}")
+    @RoleAllowed({"ADMIN", "MODERATOR"})
     public ResponseEntity<TvShowResponseDto> addGenreToTvShow(@PathVariable Long tvShowId,
-                                                              @PathVariable Long genreId){
+                                                              @PathVariable Long genreId) {
         return ResponseEntity.ok(tvShowService.addGenreToTvShow(tvShowId, genreId));
     }
 
     @DeleteMapping("/{tvShowId}/genres/{genreId}")
-    public ResponseEntity<TvShowResponseDto> removeGenreFromTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long genreId
-    ) {
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<TvShowResponseDto> removeGenreFromTvShow(@PathVariable Long tvShowId,
+                                                                   @PathVariable Long genreId) {
         return ResponseEntity.ok(tvShowService.removeGenreFromTvShow(tvShowId, genreId));
     }
 
     // --- Actor ---
     @PutMapping("/{tvShowId}/actors/{actorId}")
-    public ResponseEntity<TvShowResponseDto> addActorToTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long actorId
-    ) {
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<TvShowResponseDto> addActorToTvShow(@PathVariable Long tvShowId,
+                                                              @PathVariable Long actorId) {
         return ResponseEntity.ok(tvShowService.addActorToTvShow(tvShowId, actorId));
     }
 
     @DeleteMapping("/{tvShowId}/actors/{actorId}")
-    public ResponseEntity<TvShowResponseDto> removeActorFromTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long actorId
-    ) {
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<TvShowResponseDto> removeActorFromTvShow(@PathVariable Long tvShowId,
+                                                                   @PathVariable Long actorId) {
         return ResponseEntity.ok(tvShowService.removeActorFromTvShow(tvShowId, actorId));
     }
 
     // --- Director ---
     @PutMapping("/{tvShowId}/directors/{directorId}")
-    public ResponseEntity<TvShowResponseDto> addDirectorToTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long directorId
-    ) {
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<TvShowResponseDto> addDirectorToTvShow(@PathVariable Long tvShowId,
+                                                                 @PathVariable Long directorId) {
         return ResponseEntity.ok(tvShowService.addDirectorToTvShow(tvShowId, directorId));
     }
 
     @DeleteMapping("/{tvShowId}/directors/{directorId}")
-    public ResponseEntity<TvShowResponseDto> removeDirectorFromTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long directorId
-    ) {
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<TvShowResponseDto> removeDirectorFromTvShow(@PathVariable Long tvShowId,
+                                                                      @PathVariable Long directorId) {
         return ResponseEntity.ok(tvShowService.removeDirectorFromTvShow(tvShowId, directorId));
     }
 
     // --- Producer ---
     @PutMapping("/{tvShowId}/producers/{producerId}")
-    public ResponseEntity<TvShowResponseDto> addProducerToTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long producerId
-    ) {
+    @RoleAllowed({"ADMIN"})
+    public ResponseEntity<TvShowResponseDto> addProducerToTvShow(@PathVariable Long tvShowId,
+                                                                 @PathVariable Long producerId) {
         return ResponseEntity.ok(tvShowService.addProducerToTvShow(tvShowId, producerId));
     }
 
     @DeleteMapping("/{tvShowId}/producers/{producerId}")
-    public ResponseEntity<TvShowResponseDto> removeProducerFromTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long producerId
-    ) {
+    @RoleAllowed({"ADMIN"})
+    public ResponseEntity<TvShowResponseDto> removeProducerFromTvShow(@PathVariable Long tvShowId,
+                                                                      @PathVariable Long producerId) {
         return ResponseEntity.ok(tvShowService.removeProducerFromTvShow(tvShowId, producerId));
     }
 
     // --- Category ---
     @PutMapping("/{tvShowId}/category/{categoryId}")
-    public ResponseEntity<TvShowResponseDto> addCategoryToTvShow(
-            @PathVariable Long tvShowId,
-            @PathVariable Long categoryId
-    ) {
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<TvShowResponseDto> addCategoryToTvShow(@PathVariable Long tvShowId,
+                                                                 @PathVariable Long categoryId) {
         return ResponseEntity.ok(tvShowService.addCategoryToTvShow(tvShowId, categoryId));
     }
 
     @DeleteMapping("/{tvShowId}/category")
-    public ResponseEntity<TvShowResponseDto> removeCategoryFromTvShow(
-            @PathVariable Long tvShowId
-    ) {
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<TvShowResponseDto> removeCategoryFromTvShow(@PathVariable Long tvShowId) {
         return ResponseEntity.ok(tvShowService.removeCategoryFromTvShow(tvShowId));
     }
 
-
-    //   ==========  Search and filter  ==============   //
-
-
+    // --- Search and filter ---
     @GetMapping("/search")
+    @RoleAllowed({"ADMIN", "USER", "MODERATOR"})
     public Page<TvShowResponseDto> searchTvShows(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Set<Long> genreIds,
@@ -162,5 +158,4 @@ public class TvShowController {
 
         return tvShowService.searchTvShows(title, genreIds, actorIds, directorIds, producerIds, categoryId, featured, pageable);
     }
-
 }

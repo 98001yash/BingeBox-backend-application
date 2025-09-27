@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 
 @Service
@@ -35,4 +36,26 @@ public class JwtService {
 
         return userIdObj.toString();
     }
+
+    public String getRolesFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(getSecretKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+        Object rolesObj = claims.get("roles");
+        if (rolesObj == null) {
+            throw new RuntimeException("Missing roles claim in JWT");
+        }
+
+        if (rolesObj instanceof List) {
+            @SuppressWarnings("unchecked")
+            List<String> rolesList = (List<String>) rolesObj;
+            return String.join(",", rolesList);
+        }
+
+        return rolesObj.toString();
+    }
+
 }

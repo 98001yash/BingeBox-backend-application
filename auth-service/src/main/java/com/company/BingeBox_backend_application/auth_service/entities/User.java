@@ -29,7 +29,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;   // USER, ADMIN
+    private Role role = Role.USER;
 
     private boolean enabled = true;   // fot account activation/deactivation
     private boolean locked = false;  // for account lock

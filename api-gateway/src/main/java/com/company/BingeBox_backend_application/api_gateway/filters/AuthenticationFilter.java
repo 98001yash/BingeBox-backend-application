@@ -1,6 +1,5 @@
 package com.company.BingeBox_backend_application.api_gateway.filters;
 
-
 import com.company.BingeBox_backend_application.api_gateway.JwtService;
 import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFac
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
 
 @Slf4j
 @Component
@@ -27,6 +25,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
         return (exchange, chain) -> {
             String path = exchange.getRequest().getURI().getPath();
 
+            // Skip public paths
             if (path.equals("/auth/login") || path.equals("/auth/signup")) {
                 log.info("Public path, skipping authentication: {}", path);
                 return chain.filter(exchange);
@@ -45,13 +44,18 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
             final String token = tokenHeader.substring(7).trim();
 
             try {
+                // Extract userId and roles from JWT
                 String userId = jwtService.getUserIdFromToken(token);
+                String roles = jwtService.getRolesFromToken(token); // comma-separated roles
+
+                // Pass headers downstream
                 ServerWebExchange modifiedExchange = exchange
                         .mutate()
-                        .request(r -> r.header("X-User-Id", userId))
+                        .request(r -> r.header("X-User-Id", userId)
+                                .header("X-User-Roles", roles))
                         .build();
 
-                log.info("Authenticated user ID: {}", userId);
+                log.info("Authenticated user ID: {}, Roles: {}", userId, roles);
                 return chain.filter(modifiedExchange);
             } catch (JwtException e) {
                 log.error("Jwt Exception: {}", e.getLocalizedMessage());
@@ -61,8 +65,7 @@ public class AuthenticationFilter extends AbstractGatewayFilterFactory<AbstractG
         };
     }
 
-
     public static class Config {
-        // You can leave this empty
+        // Can leave empty
     }
 }

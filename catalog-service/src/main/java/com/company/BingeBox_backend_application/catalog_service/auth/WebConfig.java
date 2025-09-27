@@ -1,6 +1,7 @@
 package com.company.BingeBox_backend_application.catalog_service.auth;
 
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -12,8 +13,12 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private UserInterceptor userInterceptor;
 
+    @Autowired
+    private RoleInterceptor roleInterceptor;
+
     @Override
-    public void addInterceptors(InterceptorRegistry registry){
+    public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(userInterceptor);
+        registry.addInterceptor(roleInterceptor);
     }
 }

@@ -1,6 +1,6 @@
 package com.company.BingeBox_backend_application.catalog_service.controller;
 
-
+import com.company.BingeBox_backend_application.catalog_service.auth.RoleAllowed;
 import com.company.BingeBox_backend_application.catalog_service.dtos.MovieRequestDto;
 import com.company.BingeBox_backend_application.catalog_service.dtos.MovieResponseDto;
 import com.company.BingeBox_backend_application.catalog_service.service.MovieService;
@@ -20,26 +20,31 @@ public class MovieController {
 
     private final MovieService movieService;
 
+    // --- Movie CRUD ---
+
     @PostMapping
-    public ResponseEntity<MovieResponseDto> createMovie(@RequestBody MovieRequestDto movieRequestDto){
-        log.info("creating new movie with title: {}",movieRequestDto.getTitle());
+    @RoleAllowed({"ADMIN"})
+    public ResponseEntity<MovieResponseDto> createMovie(@RequestBody MovieRequestDto movieRequestDto) {
+        log.info("Creating new movie with title: {}", movieRequestDto.getTitle());
         return ResponseEntity.ok(movieService.createMovie(movieRequestDto));
     }
 
     @GetMapping("/{id}")
+    @RoleAllowed({"ADMIN", "USER", "MODERATOR"})
     public ResponseEntity<MovieResponseDto> getMovieById(@PathVariable Long id) {
         log.info("Fetching movie with id: {}", id);
         return ResponseEntity.ok(movieService.getMovieById(id));
     }
 
     @GetMapping
+    @RoleAllowed({"ADMIN", "USER", "MODERATOR"})
     public ResponseEntity<List<MovieResponseDto>> getAllMovies() {
         log.info("Fetching all movies");
         return ResponseEntity.ok(movieService.getAllMovies());
     }
 
-
     @PutMapping("/{id}")
+    @RoleAllowed({"ADMIN", "MODERATOR"})
     public ResponseEntity<MovieResponseDto> updateMovie(
             @PathVariable Long id,
             @RequestBody MovieRequestDto movieRequestDto) {
@@ -48,86 +53,96 @@ public class MovieController {
     }
 
     @DeleteMapping("/{id}")
+    @RoleAllowed({"ADMIN"})
     public ResponseEntity<String> deleteMovie(@PathVariable Long id) {
         log.info("Deleting movie with id: {}", id);
         movieService.deleteMovie(id);
         return ResponseEntity.ok("Movie deleted successfully with id: " + id);
     }
 
-                //======Actor relations=====//
+    // --- Actor Relations ---
 
     @PostMapping("/{movieId}/actor/{actorId}")
-    public ResponseEntity<Void> addActor(@PathVariable Long movieId, @PathVariable Long actorId){
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<Void> addActor(@PathVariable Long movieId, @PathVariable Long actorId) {
         movieService.addActorToMovie(movieId, actorId);
         return ResponseEntity.ok().build();
     }
 
-
     @DeleteMapping("/{movieId}/actors/{actorId}")
-    public ResponseEntity<Void> removeActor(@PathVariable Long movieId, @PathVariable Long actorId){
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<Void> removeActor(@PathVariable Long movieId, @PathVariable Long actorId) {
         movieService.removeActorFromMovie(movieId, actorId);
         return ResponseEntity.noContent().build();
     }
 
+    // --- Director Relations ---
 
-    //======Director relation==========//
     @PostMapping("/{movieId}/directors/{directorId}")
-    public ResponseEntity<Void> addDirector(@PathVariable Long movieId, @PathVariable Long directorId){
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<Void> addDirector(@PathVariable Long movieId, @PathVariable Long directorId) {
         movieService.addDirectorToMovie(movieId, directorId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{movieId}/directors/{directorId}")
-    public ResponseEntity<Void> removeDirector(@PathVariable Long movieId, @PathVariable Long directorId){
+    @RoleAllowed({"ADMIN", "MODERATOR"})
+    public ResponseEntity<Void> removeDirector(@PathVariable Long movieId, @PathVariable Long directorId) {
         movieService.removeDirectorFromMovie(movieId, directorId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
-    //============Producer relations ================//
+    // --- Producer Relations ---
 
     @PostMapping("/{movieId}/producers/{producerId}")
+    @RoleAllowed({"ADMIN"})
     public ResponseEntity<Void> addProducer(@PathVariable Long movieId, @PathVariable Long producerId) {
         movieService.addProducerToMovie(movieId, producerId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{movieId}/producers/{producerId}")
+    @RoleAllowed({"ADMIN"})
     public ResponseEntity<Void> removeProducer(@PathVariable Long movieId, @PathVariable Long producerId) {
         movieService.removeProducerFromMovie(movieId, producerId);
         return ResponseEntity.noContent().build();
     }
 
-
-    // --- Genre relations ---
+    // --- Genre Relations ---
 
     @PostMapping("/{movieId}/genres/{genreId}")
+    @RoleAllowed({"ADMIN", "MODERATOR"})
     public ResponseEntity<Void> addGenre(@PathVariable Long movieId, @PathVariable Long genreId) {
         movieService.addGenreToMovie(movieId, genreId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{movieId}/genres/{genreId}")
+    @RoleAllowed({"ADMIN", "MODERATOR"})
     public ResponseEntity<Void> removeGenre(@PathVariable Long movieId, @PathVariable Long genreId) {
         movieService.removeGenreFromMovie(movieId, genreId);
         return ResponseEntity.noContent().build();
     }
 
-    // --- Category relations ---
+    // --- Category Relations ---
 
     @PostMapping("/{movieId}/categories/{categoryId}")
+    @RoleAllowed({"ADMIN", "MODERATOR"})
     public ResponseEntity<Void> addCategory(@PathVariable Long movieId, @PathVariable Long categoryId) {
         movieService.addCategoryToMovie(movieId, categoryId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{movieId}/categories/{categoryId}")
+    @RoleAllowed({"ADMIN", "MODERATOR"})
     public ResponseEntity<Void> removeCategory(@PathVariable Long movieId, @PathVariable Long categoryId) {
         movieService.removeCategoryFromMovie(movieId, categoryId);
         return ResponseEntity.noContent().build();
     }
 
-
+    // --- Search Movies (read-only) ---
     @GetMapping("/search")
+    @RoleAllowed({"ADMIN", "USER", "MODERATOR"})
     public List<MovieResponseDto> searchMovies(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) Set<Long> genreIds,
