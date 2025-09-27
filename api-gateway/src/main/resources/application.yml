@@ -30,12 +30,24 @@ spring:
         uri: lb://auth-service
         predicates:
           - Path=/auth/**
+        filters:
+          - AuthenticationFilter
 
 
       - id: catalog-service
         uri: lb://catalog-service
         predicates:
           - Path=/catalog/**
+        filters:
+          - AuthenticationFilter
+
+
+      - id: user-service
+        uri: lb://user-service
+        predicates:
+          - Path=/users/**
+        filters:
+          - AuthenticationFilter
 
 eureka:
   client:

@@ -1,5 +1,6 @@
 package com.company.BingeBox_backend_application.user_service.service.Impl;
 
+import com.company.BingeBox_backend_application.user_service.auth.UserContextHolder;
 import com.company.BingeBox_backend_application.user_service.client.CatalogClient;
 import com.company.BingeBox_backend_application.user_service.dtos.FavoriteItemDto;
 import com.company.BingeBox_backend_application.user_service.dtos.MovieResponseDto;
@@ -26,8 +27,12 @@ public class FavoriteServiceImpl implements FavoriteService {
     private final UserProfileRepository userProfileRepository;
     private final CatalogClient catalogClient;   // Feign client for Catalog service
 
+
     @Override
-    public FavoriteItemDto addToFavorite(Long userId, Long contentId, String contentType) {
+    public FavoriteItemDto addToFavorite(Long contentId, String contentType) {
+        Long userId = UserContextHolder.getCurrentUserId();
+        if (userId == null) throw new RuntimeException("User not authenticated");
+
         log.info("Adding contentId={} contentType={} to favorites for userId={}", contentId, contentType, userId);
 
         UserProfile user = userProfileRepository.findById(userId)
@@ -46,7 +51,10 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public void removeFromFavorites(Long userId, Long contentId, String contentType) {
+    public void removeFromFavorites(Long contentId, String contentType) {
+        Long userId = UserContextHolder.getCurrentUserId();
+        if (userId == null) throw new RuntimeException("User not authenticated");
+
         log.info("Removing contentId={} contentType={} from favorites for userId={}", contentId, contentType, userId);
 
         FavoriteItem item = favoriteRepository
@@ -59,7 +67,10 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    public List<FavoriteItemDto> getUserFavorites(Long userId) {
+    public List<FavoriteItemDto> getUserFavorites() {
+        Long userId = UserContextHolder.getCurrentUserId();
+        if (userId == null) throw new RuntimeException("User not authenticated");
+
         log.info("Fetching favorites for userId={}", userId);
 
         List<FavoriteItem> items = favoriteRepository.findByUser_UserId(userId);

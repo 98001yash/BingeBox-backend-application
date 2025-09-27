@@ -6,8 +6,8 @@ import java.util.List;
 
 public interface FavoriteService {
 
-    FavoriteItemDto addToFavorite(Long userId, Long contentId, String contentType);
-    void removeFromFavorites(Long userId, Long contentId, String contentType);
 
-    List<FavoriteItemDto> getUserFavorites(Long userId);
+    FavoriteItemDto addToFavorite(Long contentId, String contentType);
+    void removeFromFavorites(Long contentId, String contentType);
+    List<FavoriteItemDto> getUserFavorites();
 }
