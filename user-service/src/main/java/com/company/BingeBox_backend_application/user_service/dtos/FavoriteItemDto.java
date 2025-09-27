@@ -13,4 +13,8 @@ public class FavoriteItemDto {
     private Long id;
     private Long contentId;
     private String contentType;
+
+
+    private MovieResponseDto movie;
+    private TvShowResponseDto tvShow;
 }
