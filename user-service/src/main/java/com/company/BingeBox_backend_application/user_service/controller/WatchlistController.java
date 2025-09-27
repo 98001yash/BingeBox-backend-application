@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users/{userId}/watchlist")
+@RequestMapping("/users/watchlist")
 @RequiredArgsConstructor
 @Slf4j
 public class WatchlistController {
@@ -19,28 +19,26 @@ public class WatchlistController {
 
     @PostMapping
     public ResponseEntity<WatchlistItemDto> addToWatchlist(
-            @PathVariable Long userId,
             @RequestParam Long contentId,
             @RequestParam String contentType) {
-        log.info("API Request: Add to watchlist userId={}, contentId={}, contentType={}", userId, contentId, contentType);
-        WatchlistItemDto item = watchlistService.addToWatchList(userId, contentId, contentType);
+        log.info("API Request: Add to watchlist contentId={}, contentType={}", contentId, contentType);
+        WatchlistItemDto item = watchlistService.addToWatchList(contentId, contentType);
         return ResponseEntity.ok(item);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> removeFromWatchlist(
-            @PathVariable Long userId,
             @RequestParam Long contentId,
             @RequestParam String contentType) {
-        log.info("API Request: Remove from watchlist userId={}, contentId={}, contentType={}", userId, contentId, contentType);
-        watchlistService.removeFromWatchlist(userId, contentId, contentType);
+        log.info("API Request: Remove from watchlist contentId={}, contentType={}", contentId, contentType);
+        watchlistService.removeFromWatchlist(contentId, contentType);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<List<WatchlistItemDto>> getUserWatchlist(@PathVariable Long userId) {
-        log.info("API Request: Get watchlist for userId={}", userId);
-        List<WatchlistItemDto> watchlist = watchlistService.getUserWatchlist(userId);
+    public ResponseEntity<List<WatchlistItemDto>> getUserWatchlist() {
+        log.info("API Request: Get watchlist for current user");
+        List<WatchlistItemDto> watchlist = watchlistService.getUserWatchlist();
         return ResponseEntity.ok(watchlist);
     }
 }

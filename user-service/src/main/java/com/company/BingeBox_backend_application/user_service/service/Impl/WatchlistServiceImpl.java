@@ -10,6 +10,7 @@ import com.company.BingeBox_backend_application.user_service.exceptions.Resource
 import com.company.BingeBox_backend_application.user_service.repository.UserProfileRepository;
 import com.company.BingeBox_backend_application.user_service.repository.WatchlistRepository;
 import com.company.BingeBox_backend_application.user_service.service.WatchlistService;
+import com.company.BingeBox_backend_application.user_service.auth.UserContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,7 +28,8 @@ public class WatchlistServiceImpl implements WatchlistService {
     private final CatalogClient catalogClient;   // Feign client for catalog-service
 
     @Override
-    public WatchlistItemDto addToWatchList(Long userId, Long contentId, String contentType) {
+    public WatchlistItemDto addToWatchList(Long contentId, String contentType) {
+        Long userId = UserContextHolder.getCurrentUserId();
         log.info("Adding contentId={} contentType={} to watchList for userId={}", contentId, contentType, userId);
 
         UserProfile user = userProfileRepository.findById(userId)
@@ -46,7 +48,8 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public void removeFromWatchlist(Long userId, Long contentId, String contentType) {
+    public void removeFromWatchlist(Long contentId, String contentType) {
+        Long userId = UserContextHolder.getCurrentUserId();
         log.info("Removing contentId={} contentType={} from watchlist for userId={}", contentId, contentType, userId);
 
         WatchlistItem item = watchlistRepository
@@ -58,7 +61,8 @@ public class WatchlistServiceImpl implements WatchlistService {
     }
 
     @Override
-    public List<WatchlistItemDto> getUserWatchlist(Long userId) {
+    public List<WatchlistItemDto> getUserWatchlist() {
+        Long userId = UserContextHolder.getCurrentUserId();
         log.info("Fetching watchlist for userId={}", userId);
 
         List<WatchlistItem> items = watchlistRepository.findByUser_UserId(userId);

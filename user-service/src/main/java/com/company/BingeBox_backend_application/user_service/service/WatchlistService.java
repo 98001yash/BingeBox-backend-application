@@ -6,8 +6,10 @@ import java.util.List;
 
 public interface WatchlistService {
 
-    WatchlistItemDto addToWatchList(Long userId, Long contentId, String contentType);
-    void removeFromWatchlist(Long userId, Long contentId, String contentType);
 
-    List<WatchlistItemDto> getUserWatchlist(Long userId);
+    WatchlistItemDto addToWatchList(Long contentId, String contentType);
+
+    void removeFromWatchlist(Long contentId, String contentType);
+
+    List<WatchlistItemDto> getUserWatchlist();
 }
