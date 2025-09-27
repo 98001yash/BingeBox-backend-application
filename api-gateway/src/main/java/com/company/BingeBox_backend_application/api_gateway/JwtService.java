@@ -44,6 +44,8 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody();
 
+        System.out.println("JWT Claims: " + claims); // debug log
+
         Object rolesObj = claims.get("roles");
         if (rolesObj == null) {
             throw new RuntimeException("Missing roles claim in JWT");
@@ -57,5 +59,6 @@ public class JwtService {
 
         return rolesObj.toString();
     }
+
 
 }

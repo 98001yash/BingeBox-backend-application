@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+import java.util.Arrays;
 import java.util.Collections;
 
 @Component
@@ -22,8 +23,10 @@ public class UserInterceptor implements HandlerInterceptor {
         }
 
         if (roles != null) {
-            UserContextHolder.setCurrentUserRoles(Collections.singletonList(roles)); // store roles for RBAC
+            String[] rolesArray = roles.split(",");
+            UserContextHolder.setCurrentUserRoles(Arrays.asList(rolesArray)); // store properly
         }
+
 
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }

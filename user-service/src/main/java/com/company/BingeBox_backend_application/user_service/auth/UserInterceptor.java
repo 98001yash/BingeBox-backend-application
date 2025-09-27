@@ -1,11 +1,13 @@
 package com.company.BingeBox_backend_application.user_service.auth;
 
+
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 @Component
 public class UserInterceptor implements HandlerInterceptor {
@@ -21,8 +23,10 @@ public class UserInterceptor implements HandlerInterceptor {
         }
 
         if (roles != null) {
-            UserContextHolder.setCurrentUserRoles(Collections.singletonList(roles)); // store roles for RBAC
+            String[] rolesArray = roles.split(",");
+            UserContextHolder.setCurrentUserRoles(Arrays.asList(rolesArray)); // store properly
         }
+
 
         return HandlerInterceptor.super.preHandle(request, response, handler);
     }

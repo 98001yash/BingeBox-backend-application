@@ -29,7 +29,7 @@ public class JwtService {
     public String generateAccessToken(User user){
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", user.getId());
-        claims.put("roles", List.of(user.getRole().name())); // add roles
+        claims.put("roles", List.of(user.getRole())); // add roles
 
         return Jwts.builder()
                 .setClaims(claims)

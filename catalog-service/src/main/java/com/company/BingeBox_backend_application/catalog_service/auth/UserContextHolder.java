@@ -20,10 +20,14 @@ public class UserContextHolder {
     }
 
     static void setCurrentUserRoles(List<String> roles) {
+
+
         currentUserRoles.set(roles);
     }
 
-    static void clear(){
+    static void clear() {
         currentUserId.remove();
+        currentUserRoles.remove(); // <-- Add this line
     }
+
 }

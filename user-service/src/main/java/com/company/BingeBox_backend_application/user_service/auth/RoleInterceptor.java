@@ -1,5 +1,6 @@
 package com.company.BingeBox_backend_application.user_service.auth;
 
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class RoleInterceptor implements HandlerInterceptor {
             return false;
         }
 
-        Set<String> userRoles = new HashSet<>(Arrays.asList(rolesHeader.split(",")));
+        Set<String> userRoles = new HashSet<>(UserContextHolder.getCurrentUserRoles());
         Set<String> allowedRoles = new HashSet<>(Arrays.asList(roleAllowed.value()));
 
         boolean hasAccess = userRoles.stream().anyMatch(allowedRoles::contains);

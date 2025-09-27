@@ -1,5 +1,7 @@
 package com.company.BingeBox_backend_application.user_service.auth;
 
+
+
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
 import org.springframework.stereotype.Component;
