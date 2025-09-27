@@ -1,3 +1,9 @@
+jwt:
+  secretKey: mysupersecurekeyformysafarsaathijwt1234567890abcdefABCDEF1234567890
+
+
+
+
 server:
   port: 8081
 

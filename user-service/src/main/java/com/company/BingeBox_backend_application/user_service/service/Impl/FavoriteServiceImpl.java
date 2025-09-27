@@ -1,6 +1,9 @@
 package com.company.BingeBox_backend_application.user_service.service.Impl;
 
+import com.company.BingeBox_backend_application.user_service.client.CatalogClient;
 import com.company.BingeBox_backend_application.user_service.dtos.FavoriteItemDto;
+import com.company.BingeBox_backend_application.user_service.dtos.MovieResponseDto;
+import com.company.BingeBox_backend_application.user_service.dtos.TvShowResponseDto;
 import com.company.BingeBox_backend_application.user_service.entities.FavoriteItem;
 import com.company.BingeBox_backend_application.user_service.entities.UserProfile;
 import com.company.BingeBox_backend_application.user_service.exceptions.ResourceNotFoundException;
@@ -14,7 +17,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -22,13 +24,14 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     private final FavoriteRepository favoriteRepository;
     private final UserProfileRepository userProfileRepository;
+    private final CatalogClient catalogClient;   // Feign client for Catalog service
 
     @Override
     public FavoriteItemDto addToFavorite(Long userId, Long contentId, String contentType) {
-       log.info("Adding contentId={} contentType={} to favorites for userId={}",contentId, contentType, userId);
+        log.info("Adding contentId={} contentType={} to favorites for userId={}", contentId, contentType, userId);
 
-       UserProfile user = userProfileRepository.findById(userId)
-               .orElseThrow(()->new ResourceNotFoundException("User not found with id"+userId));
+        UserProfile user = userProfileRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id " + userId));
 
         FavoriteItem item = FavoriteItem.builder()
                 .contentId(contentId)
@@ -38,16 +41,18 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         FavoriteItem saved = favoriteRepository.save(item);
 
-        log.info("Successfully added contentId={} to userId={} favorites",contentId, userId);
-        return mapToDto(saved);
+        log.info("Successfully added contentId={} to userId={} favorites", contentId, userId);
+        return mapToDtoWithCatalogData(saved);
     }
 
     @Override
     public void removeFromFavorites(Long userId, Long contentId, String contentType) {
         log.info("Removing contentId={} contentType={} from favorites for userId={}", contentId, contentType, userId);
 
-        FavoriteItem item = favoriteRepository.findByUser_UserIdAndContentIdAndContentType(userId, contentId, contentType)
-                .orElseThrow(() -> new ResourceNotFoundException("Favorite item not found for contentId=" + contentId));
+        FavoriteItem item = favoriteRepository
+                .findByUser_UserIdAndContentIdAndContentType(userId, contentId, contentType)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Favorite item not found for contentId=" + contentId + " and type=" + contentType));
 
         favoriteRepository.delete(item);
         log.info("Removed contentId={} from userId={} favorites", contentId, userId);
@@ -59,14 +64,26 @@ public class FavoriteServiceImpl implements FavoriteService {
 
         List<FavoriteItem> items = favoriteRepository.findByUser_UserId(userId);
 
-        return items.stream().map(this::mapToDto).collect(Collectors.toList());
+        return items.stream()
+                .map(this::mapToDtoWithCatalogData)
+                .collect(Collectors.toList());
     }
 
-    private FavoriteItemDto mapToDto(FavoriteItem item) {
-        return FavoriteItemDto.builder()
+    // Mapping entity -> DTO + enrich with catalog data
+    private FavoriteItemDto mapToDtoWithCatalogData(FavoriteItem item) {
+        FavoriteItemDto.FavoriteItemDtoBuilder builder = FavoriteItemDto.builder()
                 .id(item.getId())
                 .contentId(item.getContentId())
-                .contentType(item.getContentType())
-                .build();
+                .contentType(item.getContentType());
+
+        if ("MOVIE".equalsIgnoreCase(item.getContentType())) {
+            MovieResponseDto movie = catalogClient.getMovieById(item.getContentId());
+            builder.movie(movie);
+        } else if ("TVSHOW".equalsIgnoreCase(item.getContentType())) {
+            TvShowResponseDto tvShow = catalogClient.getTvShowById(item.getContentId());
+            builder.tvShow(tvShow);
+        }
+
+        return builder.build();
     }
 }
