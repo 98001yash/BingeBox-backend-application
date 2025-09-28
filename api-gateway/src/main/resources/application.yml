@@ -49,6 +49,13 @@ spring:
         filters:
           - AuthenticationFilter
 
+      - id: feedback-service
+        uri: lb://feedback-service
+        predicates:
+          - Path=/feedback/**
+        filters:
+          - AuthenticationFilter
+
 eureka:
   client:
     service-url:
