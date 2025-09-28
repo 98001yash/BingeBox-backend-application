@@ -1,7 +1,5 @@
 package com.company.BingeBox_backend_application.catalog_service.entity;
 
-
-
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,7 +32,6 @@ public class Movie {
     private String contentUrl;
 
     private int releaseYear;
-
     private int duration;
 
     @ManyToMany
@@ -45,14 +42,12 @@ public class Movie {
     )
     private Set<Genre> genres = new HashSet<>();
 
-
     @ElementCollection
     @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "actor")
     private List<String> cast = new ArrayList<>();
 
     private String maturityRating;
-
     private boolean featured = false;
 
     @ManyToMany
@@ -71,7 +66,6 @@ public class Movie {
     )
     private Set<Director> directors = new HashSet<>();
 
-
     @ManyToMany
     @JoinTable(
             name = "movie_producers",
@@ -84,7 +78,28 @@ public class Movie {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    // ----- Null-safe getters -----
+    public Set<Genre> getGenres() {
+        return genres != null ? genres : new HashSet<>();
+    }
 
+    public List<String> getCast() {
+        return cast != null ? cast : new ArrayList<>();
+    }
 
+    public Set<Actor> getActors() {
+        return actors != null ? actors : new HashSet<>();
+    }
 
+    public Set<Director> getDirectors() {
+        return directors != null ? directors : new HashSet<>();
+    }
+
+    public Set<Producer> getProducers() {
+        return producers != null ? producers : new HashSet<>();
+    }
+
+    public Category getCategory() {
+        return category; // can still be null, handle in DTO if needed
+    }
 }

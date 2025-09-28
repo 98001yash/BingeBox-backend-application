@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -84,62 +85,61 @@ public class MovieServiceImpl implements MovieService {
     }
 
     public MovieResponseDto getMovieById(Long id) {
+        // Fetch the movie entity
         Movie movie = movieRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Movie not found with id: " + id));
 
-        MovieResponseDto dto = MovieResponseDto.builder()
-                .id(movie.getId())
-                .title(movie.getTitle())
-                .description(movie.getDescription())
-                .thumbnailUrl(movie.getThumbnailUrl())
-                .trailerUrl(movie.getTrailerUrl())
-                .contentUrl(movie.getContentUrl())
-                .releaseYear(movie.getReleaseYear())
-                .duration(movie.getDuration())
-                .maturityRating(movie.getMaturityRating())
-                .featured(movie.isFeatured())
-                .cast(movie.getCast() != null ? movie.getCast() : List.of())
-                .actors(movie.getActors() != null
-                        ? movie.getActors().stream()
-                        .map(a -> ActorDto.builder()
-                                .id(a.getId())
-                                .name(a.getName())
-                                .profileImageUrl(a.getProfileImageUrl())
-                                .build())
-                        .collect(Collectors.toSet())
-                        : Set.of())
-                .directors(movie.getDirectors() != null
-                        ? movie.getDirectors().stream()
-                        .map(d -> DirectorDto.builder()
-                                .id(d.getId())
-                                .name(d.getName())
-                                .profileImageUrl(d.getProfileImageUrl())
-                                .build())
-                        .collect(Collectors.toSet())
-                        : Set.of())
-                .producers(movie.getProducers() != null
-                        ? movie.getProducers().stream()
-                        .map(p -> ProducerDto.builder()
-                                .id(p.getId())
-                                .name(p.getName())
-                                .profileImageUrl(p.getProfileImageUrl())
-                                .build())
-                        .collect(Collectors.toSet())
-                        : Set.of())
-                .genres(movie.getGenres() != null
-                        ? movie.getGenres().stream()
-                        .map(g -> GenreDto.builder()
-                                .id(g.getId())
-                                .name(g.getName())
-                                .build())
-                        .collect(Collectors.toSet())
-                        : Set.of())
-                .category(movie.getCategory() != null ? new CategoryDto(movie.getCategory().getId(), movie.getCategory().getName()) : null)
-                .build();
+        // Defensive mapping to DTO
+        MovieResponseDto dto = new MovieResponseDto();
+
+        dto.setId(movie.getId());
+        dto.setTitle(movie.getTitle());
+        dto.setDescription(movie.getDescription());
+        dto.setThumbnailUrl(movie.getThumbnailUrl());
+        dto.setTrailerUrl(movie.getTrailerUrl());
+        dto.setContentUrl(movie.getContentUrl());
+        dto.setReleaseYear(movie.getReleaseYear());
+        dto.setDuration(movie.getDuration());
+        dto.setMaturityRating(movie.getMaturityRating());
+        dto.setFeatured(movie.isFeatured());
+
+        // Collections mapping with null-safety
+        dto.setGenres(movie.getGenres() != null
+                ? movie.getGenres().stream()
+                .filter(Objects::nonNull)
+                .map(g -> new GenreDto(g.getId(), g.getName()))
+                .collect(Collectors.toSet())
+                : Set.of());
+
+        dto.setCast(movie.getCast() != null ? movie.getCast() : List.of());
+
+        dto.setActors(movie.getActors() != null
+                ? movie.getActors().stream()
+                .filter(Objects::nonNull)
+                .map(a -> new ActorDto(a.getId(), a.getName(), a.getProfileImageUrl()))
+                .collect(Collectors.toSet())
+                : Set.of());
+
+        dto.setDirectors(movie.getDirectors() != null
+                ? movie.getDirectors().stream()
+                .filter(Objects::nonNull)
+                .map(d -> new DirectorDto(d.getId(), d.getName(), d.getProfileImageUrl()))
+                .collect(Collectors.toSet())
+                : Set.of());
+
+        dto.setProducers(movie.getProducers() != null
+                ? movie.getProducers().stream()
+                .filter(Objects::nonNull)
+                .map(p -> new ProducerDto(p.getId(), p.getName(), p.getProfileImageUrl()))
+                .collect(Collectors.toSet())
+                : Set.of());
+
+        dto.setCategory(movie.getCategory() != null
+                ? new CategoryDto(movie.getCategory().getId(), movie.getCategory().getName())
+                : null);
 
         return dto;
     }
-
 
 
 
