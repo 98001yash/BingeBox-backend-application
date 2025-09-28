@@ -82,19 +82,26 @@ public class FavoriteServiceImpl implements FavoriteService {
 
     // Mapping entity -> DTO + enrich with catalog data
     private FavoriteItemDto mapToDtoWithCatalogData(FavoriteItem item) {
-        FavoriteItemDto.FavoriteItemDtoBuilder builder = FavoriteItemDto.builder()
-                .id(item.getId())
-                .contentId(item.getContentId())
-                .contentType(item.getContentType());
+        FavoriteItemDto dto = new FavoriteItemDto();
+        dto.setId(item.getId());
+        dto.setContentId(item.getContentId());
+        dto.setContentType(item.getContentType());
 
-        if ("MOVIE".equalsIgnoreCase(item.getContentType())) {
+        try {
             MovieResponseDto movie = catalogClient.getMovieById(item.getContentId());
-            builder.movie(movie);
-        } else if ("TVSHOW".equalsIgnoreCase(item.getContentType())) {
-            TvShowResponseDto tvShow = catalogClient.getTvShowById(item.getContentId());
-            builder.tvShow(tvShow);
+            if (movie == null) {
+                log.warn("Catalog returned null for contentId={}", item.getContentId());
+            } else {
+                log.info("Catalog returned movie: {}", movie.getTitle());
+            }
+            dto.setMovie(movie);
+        } catch (Exception e) {
+            log.error("Failed to fetch catalog data for contentId={}", item.getContentId(), e);
+            dto.setMovie(null);
         }
 
-        return builder.build();
+        return dto;
     }
+
+
 }

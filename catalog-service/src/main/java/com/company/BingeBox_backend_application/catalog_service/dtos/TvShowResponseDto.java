@@ -18,13 +18,25 @@ public class TvShowResponseDto {
     private String description;
     private String thumbnailUrl;
     private String trailerUrl;
-    private Set<GenreDto> genres;
-    private List<String> cast;
+
+    @Builder.Default
+    private Set<GenreDto> genres=  Set.of();
+
+    @Builder.Default
+    private List<String> cast = List.of();
     private String maturityRating;
     private boolean featured;
-    private List<SeasonDto> seasons;   // includes seasons details
-    private Set<ActorDto> actors;
-    private Set<DirectorDto> directors;
-    private Set<ProducerDto> producers;
+
+    @Builder.Default
+    private List<SeasonDto> seasons = List.of();  // includes seasons details
+
+    @Builder.Default
+    private Set<ActorDto> actors = Set.of();
+
+    @Builder.Default
+    private Set<DirectorDto> directors = Set.of();
+
+    @Builder.Default
+    private Set<ProducerDto> producers= Set.of();
     private CategoryDto category;
 }

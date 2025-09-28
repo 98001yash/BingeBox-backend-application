@@ -4,6 +4,9 @@ package com.company.BingeBox_backend_application.catalog_service.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -40,12 +43,13 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "genre_id")
     )
-    private Set<Genre> genres;
+    private Set<Genre> genres = new HashSet<>();
+
 
     @ElementCollection
     @CollectionTable(name = "movie_cast", joinColumns = @JoinColumn(name = "movie_id"))
     @Column(name = "actor")
-    private List<String> cast;
+    private List<String> cast = new ArrayList<>();
 
     private String maturityRating;
 
@@ -57,7 +61,7 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "actor_id")
     )
-    private Set<Actor> actors;
+    private Set<Actor> actors = new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -65,7 +69,7 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "director_id")
     )
-    private Set<Director> directors;
+    private Set<Director> directors = new HashSet<>();
 
 
     @ManyToMany
@@ -74,8 +78,7 @@ public class Movie {
             joinColumns = @JoinColumn(name = "movie_id"),
             inverseJoinColumns = @JoinColumn(name = "producer_id")
     )
-    private Set<Producer> producers;
-
+    private Set<Producer> producers = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "category_id")

@@ -1,12 +1,12 @@
 package com.company.BingeBox_backend_application.catalog_service.service.Impl;
 
-import com.company.BingeBox_backend_application.catalog_service.dtos.MovieRequestDto;
-import com.company.BingeBox_backend_application.catalog_service.dtos.MovieResponseDto;
+import com.company.BingeBox_backend_application.catalog_service.dtos.*;
 import com.company.BingeBox_backend_application.catalog_service.entity.*;
 import com.company.BingeBox_backend_application.catalog_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.catalog_service.repository.*;
 import com.company.BingeBox_backend_application.catalog_service.service.MovieService;
 import com.company.BingeBox_backend_application.catalog_service.specification.MovieSpecification;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -83,11 +83,21 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
+    @Transactional // Keep Hibernate session open during mapping
     public MovieResponseDto getMovieById(Long id) {
-       Movie movie = movieRepository.findById(id)
-               .orElseThrow(()->new ResourceNotFoundException("Movie not found with di "+id));
-       return convertToResponseDto(movie);
+        Movie movie = movieRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id " + id));
+
+        // Force initialization of lazy collections
+        movie.getActors().size();
+        movie.getDirectors().size();
+        movie.getProducers().size();
+        movie.getGenres().size();
+        if (movie.getCast() == null) movie.setCast(List.of());
+
+        return convertToResponseDto(movie);
     }
+
 
     @Override
     public List<MovieResponseDto> getAllMovies() {
@@ -283,15 +293,35 @@ public class MovieServiceImpl implements MovieService {
 
 
     private MovieResponseDto mapToResponse(Movie movie) {
-        // Map entity to DTO (reuse your existing mapping logic)
         return MovieResponseDto.builder()
                 .id(movie.getId())
                 .title(movie.getTitle())
                 .description(movie.getDescription())
                 .thumbnailUrl(movie.getThumbnailUrl())
                 .trailerUrl(movie.getTrailerUrl())
-                .cast(movie.getCast())
+                .contentUrl(movie.getContentUrl())
+                .releaseYear(movie.getReleaseYear())
+                .duration(movie.getDuration())
+                .cast(movie.getCast() != null ? movie.getCast() : List.of())
                 .featured(movie.isFeatured())
+                .genres(movie.getGenres() != null ? movie.getGenres().stream()
+                        .map(g -> new GenreDto(g.getId(), g.getName()))
+                        .collect(Collectors.toSet()) : Set.of())
+                .actors(movie.getActors() != null ? movie.getActors().stream()
+                        .map(a -> new ActorDto(a.getId(), a.getName(), a.getProfileImageUrl()))
+                        .collect(Collectors.toSet()) : Set.of())
+                .directors(movie.getDirectors() != null ? movie.getDirectors().stream()
+                        .map(d -> new DirectorDto(d.getId(), d.getName(), d.getProfileImageUrl()))
+                        .collect(Collectors.toSet()) : Set.of())
+                .producers(movie.getProducers() != null ? movie.getProducers().stream()
+                        .map(p -> new ProducerDto(p.getId(), p.getName(), p.getProfileImageUrl()))
+                        .collect(Collectors.toSet()) : Set.of())
+                .category(movie.getCategory() != null ?
+                        new CategoryDto(movie.getCategory().getId(), movie.getCategory().getName()) : null)
+                .maturityRating(movie.getMaturityRating())
                 .build();
     }
+
+
+
 }

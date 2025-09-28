@@ -1,6 +1,7 @@
 package com.company.BingeBox_backend_application.auth_service.utils;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class PasswordUtils {
 
