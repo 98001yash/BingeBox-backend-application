@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserProfileDto {
 
-    private Long userid;
-    private Long displayName;
+    private Long userId;
+    private String displayName;
     private String avatarUrl;
 }
