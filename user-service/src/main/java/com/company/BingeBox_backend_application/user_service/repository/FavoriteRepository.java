@@ -4,6 +4,7 @@ import com.company.BingeBox_backend_application.user_service.entities.FavoriteIt
 import com.company.BingeBox_backend_application.user_service.entities.UserProfile;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,4 +17,6 @@ public interface FavoriteRepository extends JpaRepository<FavoriteItem, Long> {
 
     // Check if a content already exists in favorites
     boolean existsByUser_UserIdAndContentIdAndContentType(Long userId, Long contentId, String contentType);
+
+
 }

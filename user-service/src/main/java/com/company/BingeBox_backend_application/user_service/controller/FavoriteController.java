@@ -34,7 +34,7 @@ public class FavoriteController {
             @RequestParam Long contentId,
             @RequestParam String contentType) {
         log.info("API Request: Remove from favorites contentId={}, contentType={}", contentId, contentType);
-        favoriteService.removeFromFavorites(contentId, contentType);
+        favoriteService.removeFromFavorite(contentId, contentType);
         return ResponseEntity.noContent().build();
     }
 

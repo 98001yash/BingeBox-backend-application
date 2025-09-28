@@ -11,6 +11,7 @@ import com.company.BingeBox_backend_application.user_service.repository.UserProf
 import com.company.BingeBox_backend_application.user_service.repository.WatchlistRepository;
 import com.company.BingeBox_backend_application.user_service.service.WatchlistService;
 import com.company.BingeBox_backend_application.user_service.auth.UserContextHolder;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,15 +26,15 @@ public class WatchlistServiceImpl implements WatchlistService {
 
     private final WatchlistRepository watchlistRepository;
     private final UserProfileRepository userProfileRepository;
-    private final CatalogClient catalogClient;   // Feign client for catalog-service
+    private final CatalogClient catalogClient;
 
     @Override
     public WatchlistItemDto addToWatchList(Long contentId, String contentType) {
         Long userId = UserContextHolder.getCurrentUserId();
-        log.info("Adding contentId={} contentType={} to watchList for userId={}", contentId, contentType, userId);
+        if(userId == null) throw new RuntimeException("User not authenticated");
 
         UserProfile user = userProfileRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
         WatchlistItem item = WatchlistItem.builder()
                 .contentId(contentId)
@@ -42,51 +43,49 @@ public class WatchlistServiceImpl implements WatchlistService {
                 .build();
 
         WatchlistItem saved = watchlistRepository.save(item);
-
-        log.info("Successfully added contentId={} to userId={} watchlist", contentId, userId);
         return mapToDtoWithCatalogData(saved);
     }
 
     @Override
     public void removeFromWatchlist(Long contentId, String contentType) {
         Long userId = UserContextHolder.getCurrentUserId();
-        log.info("Removing contentId={} contentType={} from watchlist for userId={}", contentId, contentType, userId);
 
         WatchlistItem item = watchlistRepository
                 .findByUser_UserIdAndContentIdAndContentType(userId, contentId, contentType)
-                .orElseThrow(() -> new ResourceNotFoundException("Watchlist item not found for contentId=" + contentId));
+                .orElseThrow(() -> new RuntimeException("Watchlist item not found"));
 
         watchlistRepository.delete(item);
-        log.info("Removed contentId={} from userId={} watchlist", contentId, userId);
     }
 
     @Override
     public List<WatchlistItemDto> getUserWatchlist() {
         Long userId = UserContextHolder.getCurrentUserId();
-        log.info("Fetching watchlist for userId={}", userId);
-
-        List<WatchlistItem> items = watchlistRepository.findByUser_UserId(userId);
-
-        return items.stream()
+        return watchlistRepository.findByUser_UserId(userId)
+                .stream()
                 .map(this::mapToDtoWithCatalogData)
                 .collect(Collectors.toList());
     }
 
-    // Map entity -> DTO + enrich with catalog data
     private WatchlistItemDto mapToDtoWithCatalogData(WatchlistItem item) {
-        WatchlistItemDto.WatchlistItemDtoBuilder builder = WatchlistItemDto.builder()
-                .id(item.getId())
-                .contentId(item.getContentId())
-                .contentType(item.getContentType());
+        MovieResponseDto movie = null;
+        TvShowResponseDto tvShow = null;
 
-        if ("MOVIE".equalsIgnoreCase(item.getContentType())) {
-            MovieResponseDto movie = catalogClient.getMovieById(item.getContentId());
-            builder.movie(movie);
-        } else if ("TVSHOW".equalsIgnoreCase(item.getContentType())) {
-            TvShowResponseDto tvShow = catalogClient.getTvShowById(item.getContentId());
-            builder.tvShow(tvShow);
+        try {
+            if ("MOVIE".equalsIgnoreCase(item.getContentType())) {
+                movie = catalogClient.getMovieById(item.getContentId());
+            } else if ("TVSHOW".equalsIgnoreCase(item.getContentType())) {
+                tvShow = catalogClient.getTvShowById(item.getContentId());
+            }
+        } catch (FeignException e) {
+            log.error("Failed to fetch catalog data for contentId={}", item.getContentId(), e);
         }
 
-        return builder.build();
+        return WatchlistItemDto.builder()
+                .id(item.getId())
+                .contentId(item.getContentId())
+                .contentType(item.getContentType())
+                .movie(movie)
+                .tvShow(tvShow)
+                .build();
     }
 }

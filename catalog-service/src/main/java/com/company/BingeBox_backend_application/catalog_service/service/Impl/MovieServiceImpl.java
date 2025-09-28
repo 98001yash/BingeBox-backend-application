@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -82,21 +83,65 @@ public class MovieServiceImpl implements MovieService {
 
     }
 
-    @Override
-    @Transactional // Keep Hibernate session open during mapping
     public MovieResponseDto getMovieById(Long id) {
         Movie movie = movieRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Movie not found with id " + id));
+                .orElseThrow(() -> new RuntimeException("Movie not found with id: " + id));
 
-        // Force initialization of lazy collections
-        movie.getActors().size();
-        movie.getDirectors().size();
-        movie.getProducers().size();
-        movie.getGenres().size();
-        if (movie.getCast() == null) movie.setCast(List.of());
+        MovieResponseDto dto = MovieResponseDto.builder()
+                .id(movie.getId())
+                .title(movie.getTitle())
+                .description(movie.getDescription())
+                .thumbnailUrl(movie.getThumbnailUrl())
+                .trailerUrl(movie.getTrailerUrl())
+                .contentUrl(movie.getContentUrl())
+                .releaseYear(movie.getReleaseYear())
+                .duration(movie.getDuration())
+                .maturityRating(movie.getMaturityRating())
+                .featured(movie.isFeatured())
+                .cast(movie.getCast() != null ? movie.getCast() : List.of())
+                .actors(movie.getActors() != null
+                        ? movie.getActors().stream()
+                        .map(a -> ActorDto.builder()
+                                .id(a.getId())
+                                .name(a.getName())
+                                .profileImageUrl(a.getProfileImageUrl())
+                                .build())
+                        .collect(Collectors.toSet())
+                        : Set.of())
+                .directors(movie.getDirectors() != null
+                        ? movie.getDirectors().stream()
+                        .map(d -> DirectorDto.builder()
+                                .id(d.getId())
+                                .name(d.getName())
+                                .profileImageUrl(d.getProfileImageUrl())
+                                .build())
+                        .collect(Collectors.toSet())
+                        : Set.of())
+                .producers(movie.getProducers() != null
+                        ? movie.getProducers().stream()
+                        .map(p -> ProducerDto.builder()
+                                .id(p.getId())
+                                .name(p.getName())
+                                .profileImageUrl(p.getProfileImageUrl())
+                                .build())
+                        .collect(Collectors.toSet())
+                        : Set.of())
+                .genres(movie.getGenres() != null
+                        ? movie.getGenres().stream()
+                        .map(g -> GenreDto.builder()
+                                .id(g.getId())
+                                .name(g.getName())
+                                .build())
+                        .collect(Collectors.toSet())
+                        : Set.of())
+                .category(movie.getCategory() != null ? new CategoryDto(movie.getCategory().getId(), movie.getCategory().getName()) : null)
+                .build();
 
-        return convertToResponseDto(movie);
+        return dto;
     }
+
+
+
 
 
     @Override

@@ -17,6 +17,8 @@ public class WatchlistItem {
 
     private Long contentId;   // movieId or tvShowId from Catalog
     private String contentType;
+
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private UserProfile user;
