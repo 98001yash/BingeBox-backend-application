@@ -16,6 +16,7 @@ public class UserProfile {
 
 
     @Id
+    @Column(name = "user_id", nullable = false, unique = true)
     private Long userId;
 
     private String displayName;

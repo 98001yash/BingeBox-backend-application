@@ -1,38 +1,47 @@
 package com.company.BingeBox_backend_application.user_service.service;
 
-
 import com.company.BingeBox_backend_application.user_service.dtos.UserProfileCreateRequest;
 import com.company.BingeBox_backend_application.user_service.dtos.UserProfileDto;
 import com.company.BingeBox_backend_application.user_service.entities.UserProfile;
 import com.company.BingeBox_backend_application.user_service.repository.UserProfileRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserProfileService {
 
     private final UserProfileRepository userProfileRepository;
 
-    public UserProfileDto createProfile(UserProfileCreateRequest request){
-        //prevent duplicate profile
+    public UserProfileDto createProfile(UserProfileCreateRequest request) {
+        log.info("Received request to create profile for userId={}", request.getUserId());
 
-        if(userProfileRepository.findById(request.getUserid()).isPresent()){
-            throw new RuntimeException("Profile already exists fro userId="+request.getUserid());
+        // Check if profile already exists
+        if (userProfileRepository.findById(request.getUserId()).isPresent()) {
+            log.warn("Profile already exists for userId={}", request.getUserId());
+            throw new RuntimeException("Profile already exists for userId=" + request.getUserId());
         }
 
+        log.info("Creating new UserProfile entity for userId={}", request.getUserId());
         UserProfile profile = UserProfile.builder()
-                .userId(request.getUserid())
+                .userId(request.getUserId())
                 .displayName(request.getDisplayName())
                 .avatarUrl(request.getAvatarUrl())
                 .build();
 
         UserProfile saved = userProfileRepository.save(profile);
+        log.info("UserProfile saved successfully: userId={}, displayName={}, avatarUrl={}",
+                saved.getUserId(), saved.getDisplayName(), saved.getAvatarUrl());
 
-        return UserProfileDto.builder()
+        UserProfileDto dto = UserProfileDto.builder()
                 .userId(saved.getUserId())
                 .displayName(saved.getDisplayName())
                 .avatarUrl(saved.getAvatarUrl())
                 .build();
+
+        log.info("Returning UserProfileDto for userId={}", dto.getUserId());
+        return dto;
     }
 }
