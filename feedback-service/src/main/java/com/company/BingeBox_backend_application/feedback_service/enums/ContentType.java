@@ -4,5 +4,6 @@ public enum ContentType {
 
     MOVIE,
     SERIES,
-    DOCUMENTARY
+    DOCUMENTARY,
+    TVSHOW
 }

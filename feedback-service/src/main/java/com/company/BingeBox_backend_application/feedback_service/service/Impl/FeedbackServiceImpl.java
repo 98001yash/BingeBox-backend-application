@@ -1,9 +1,12 @@
 package com.company.BingeBox_backend_application.feedback_service.service.Impl;
 
 import com.company.BingeBox_backend_application.feedback_service.auth.UserContextHolder;
+import com.company.BingeBox_backend_application.feedback_service.client.CatalogClient;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackRequestDto;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackResponseDto;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackSummaryDto;
+import com.company.BingeBox_backend_application.feedback_service.dtos.MovieResponseDto;
+import com.company.BingeBox_backend_application.feedback_service.dtos.TvShowResponseDto;
 import com.company.BingeBox_backend_application.feedback_service.entity.Feedback;
 import com.company.BingeBox_backend_application.feedback_service.enums.ContentType;
 import com.company.BingeBox_backend_application.feedback_service.enums.FeedbackType;
@@ -25,15 +28,19 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     private final FeedbackRepository feedbackRepository;
     private final ModelMapper modelMapper;
+    private final CatalogClient catalogClient; // ✅ Feign client
 
     @Override
     public FeedbackResponseDto addFeedback(Long feedbackId, FeedbackRequestDto feedbackRequestDto) {
-        Long userId = UserContextHolder.getCurrentUserId(); // ✅ get user from context
+        Long userId = UserContextHolder.getCurrentUserId();
         log.info("Adding feedback for contentId={} contentType={} by userId={}",
                 feedbackRequestDto.getContentId(),
                 feedbackRequestDto.getContentType(),
                 userId
         );
+
+        // --- Validate content exists in catalog-service ---
+        validateContent(feedbackRequestDto.getContentId(), feedbackRequestDto.getContentType());
 
         // prevent duplicates
         if (feedbackRepository.existsByUserIdAndContentIdAndContentType(
@@ -44,7 +51,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         }
 
         Feedback feedback = modelMapper.map(feedbackRequestDto, Feedback.class);
-        feedback.setUserId(userId); // ✅ override from context
+        feedback.setUserId(userId);
 
         Feedback saved = feedbackRepository.save(feedback);
         log.info("Feedback created successfully with id={}", saved.getId());
@@ -54,18 +61,19 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public FeedbackResponseDto updateFeedback(Long feedbackId, FeedbackRequestDto feedbackRequestDto) {
-        Long userId = UserContextHolder.getCurrentUserId(); // ✅ user context
+        Long userId = UserContextHolder.getCurrentUserId();
         log.info("Updating feedback id={} for userId={}", feedbackId, userId);
 
         Feedback feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new ResourceNotFoundException("Feedback not found with id: " + feedbackId));
 
-        // ensure only owner can update
         if (!feedback.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized: You can only update your own feedback");
         }
 
-        // update fields
+        // Validate content exists in catalog-service
+        validateContent(feedbackRequestDto.getContentId(), feedbackRequestDto.getContentType());
+
         feedback.setRating(feedbackRequestDto.getRating());
         feedback.setComment(feedbackRequestDto.getComment());
         feedback.setFeedbackType(feedbackRequestDto.getFeedbackType());
@@ -78,13 +86,12 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public void deleteFeedback(Long feedbackId) {
-        Long userId = UserContextHolder.getCurrentUserId(); // ✅ user context
+        Long userId = UserContextHolder.getCurrentUserId();
         log.warn("Deleting feedback id={} by userId={}", feedbackId, userId);
 
         Feedback feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new ResourceNotFoundException("Feedback not found with id " + feedbackId));
 
-        // ensure only owner can delete
         if (!feedback.getUserId().equals(userId)) {
             throw new RuntimeException("Unauthorized: You can only delete your own feedback");
         }
@@ -148,5 +155,22 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .averageRating(avgRating)
                 .totalComments(totalComments)
                 .build();
+    }
+
+    // ----------------- helper -----------------
+    private void validateContent(Long contentId, ContentType contentType) {
+        try {
+            if (contentType == ContentType.MOVIE) {
+                MovieResponseDto movie = catalogClient.getMovieById(contentId);
+                if (movie == null) throw new RuntimeException("Movie not found in catalog-service");
+            } else if (contentType == ContentType.TVSHOW) {
+                TvShowResponseDto tvShow = catalogClient.getTvShowById(contentId);
+                if (tvShow == null) throw new RuntimeException("TV Show not found in catalog-service");
+            } else {
+                throw new RuntimeException("Invalid content type: " + contentType);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch content from catalog-service: " + e.getMessage());
+        }
     }
 }
