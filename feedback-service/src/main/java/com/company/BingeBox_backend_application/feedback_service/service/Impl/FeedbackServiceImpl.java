@@ -5,6 +5,7 @@ import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackRe
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackSummaryDto;
 import com.company.BingeBox_backend_application.feedback_service.entity.Feedback;
 import com.company.BingeBox_backend_application.feedback_service.enums.ContentType;
+import com.company.BingeBox_backend_application.feedback_service.enums.FeedbackType;
 import com.company.BingeBox_backend_application.feedback_service.exceptions.ResourceNotFoundException;
 import com.company.BingeBox_backend_application.feedback_service.repository.FeedbackRepository;
 import com.company.BingeBox_backend_application.feedback_service.service.FeedbackService;
@@ -93,11 +94,46 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public List<FeedbackResponseDto> getFeedbackByUser(Long userId) {
-        return List.of();
+        log.debug("Fetching feedback for userId={}",userId);
+
+        List<Feedback> feedbacklist = feedbackRepository.findByUserId(userId);
+        return feedbacklist.stream()
+                .map(f->modelMapper.map(f, FeedbackResponseDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public FeedbackSummaryDto getFeedbackSummary(Long contentId, String contentType) {
-        return null;
+        log.debug("Calculating feedback summary for contentId={} contentType={}", contentId, contentType);
+
+        ContentType type = ContentType.valueOf(contentType.toUpperCase());
+        List<Feedback> feedbackList = feedbackRepository.findByContentIdAndContentType(contentId, type);
+
+        long totalLikes = feedbackList.stream()
+                .filter(f -> f.getFeedbackType() == FeedbackType.LIKE)
+                .count();
+
+        long totalDislikes = feedbackList.stream()
+                .filter(f -> f.getFeedbackType() == FeedbackType.DISLIKE)
+                .count();
+
+        double avgRating = feedbackList.stream()
+                .filter(f -> f.getRating() != null)
+                .mapToInt(Feedback::getRating)
+                .average()
+                .orElse(0.0);
+
+        long totalComments = feedbackList.stream()
+                .filter(f -> f.getComment() != null && !f.getComment().isBlank())
+                .count();
+
+        return FeedbackSummaryDto.builder()
+                .contentId(contentId)
+                .contentType(type.name())
+                .totalLikes(totalLikes)
+                .totalDislikes(totalDislikes)
+                .averageRating(avgRating)
+                .totalComments(totalComments)
+                .build();
     }
 }
