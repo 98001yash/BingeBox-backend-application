@@ -1,5 +1,6 @@
 package com.company.BingeBox_backend_application.feedback_service.service.Impl;
 
+import com.company.BingeBox_backend_application.feedback_service.auth.UserContextHolder;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackRequestDto;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackResponseDto;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackSummaryDto;
@@ -27,35 +28,42 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public FeedbackResponseDto addFeedback(Long feedbackId, FeedbackRequestDto feedbackRequestDto) {
+        Long userId = UserContextHolder.getCurrentUserId(); // ✅ get user from context
         log.info("Adding feedback for contentId={} contentType={} by userId={}",
                 feedbackRequestDto.getContentId(),
                 feedbackRequestDto.getContentType(),
-                feedbackRequestDto.getUserId()
+                userId
         );
 
         // prevent duplicates
         if (feedbackRepository.existsByUserIdAndContentIdAndContentType(
-                feedbackRequestDto.getUserId(),
+                userId,
                 feedbackRequestDto.getContentId(),
                 feedbackRequestDto.getContentType())) {
             throw new RuntimeException("User already submitted feedback for this content");
         }
 
         Feedback feedback = modelMapper.map(feedbackRequestDto, Feedback.class);
-        Feedback saved = feedbackRepository.save(feedback);
+        feedback.setUserId(userId); // ✅ override from context
 
+        Feedback saved = feedbackRepository.save(feedback);
         log.info("Feedback created successfully with id={}", saved.getId());
+
         return modelMapper.map(saved, FeedbackResponseDto.class);
     }
 
-
-
     @Override
     public FeedbackResponseDto updateFeedback(Long feedbackId, FeedbackRequestDto feedbackRequestDto) {
-        log.info("Updating feedback id={} for userId={}", feedbackId, feedbackRequestDto.getUserId());
+        Long userId = UserContextHolder.getCurrentUserId(); // ✅ user context
+        log.info("Updating feedback id={} for userId={}", feedbackId, userId);
 
         Feedback feedback = feedbackRepository.findById(feedbackId)
                 .orElseThrow(() -> new ResourceNotFoundException("Feedback not found with id: " + feedbackId));
+
+        // ensure only owner can update
+        if (!feedback.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized: You can only update your own feedback");
+        }
 
         // update fields
         feedback.setRating(feedbackRequestDto.getRating());
@@ -68,37 +76,42 @@ public class FeedbackServiceImpl implements FeedbackService {
         return modelMapper.map(updated, FeedbackResponseDto.class);
     }
 
-
     @Override
     public void deleteFeedback(Long feedbackId) {
-      log.warn("Deleting the feedback Id={}", feedbackId);
+        Long userId = UserContextHolder.getCurrentUserId(); // ✅ user context
+        log.warn("Deleting feedback id={} by userId={}", feedbackId, userId);
 
-      Feedback feedback = feedbackRepository.findById(feedbackId)
-              .orElseThrow(()->new ResourceNotFoundException("Feedback not found with id/l "+feedbackId));
+        Feedback feedback = feedbackRepository.findById(feedbackId)
+                .orElseThrow(() -> new ResourceNotFoundException("Feedback not found with id " + feedbackId));
 
-      feedbackRepository.delete(feedback);
-      log.info("Feedback deleted successfully id={}", feedbackId);
+        // ensure only owner can delete
+        if (!feedback.getUserId().equals(userId)) {
+            throw new RuntimeException("Unauthorized: You can only delete your own feedback");
+        }
+
+        feedbackRepository.delete(feedback);
+        log.info("Feedback deleted successfully id={}", feedbackId);
     }
 
     @Override
     public List<FeedbackResponseDto> getFeedbackByContent(Long contentId, String contentType) {
-      log.debug("Fetching feedback for contentId={}, contentType={}",contentId, contentType);
+        log.debug("Fetching feedback for contentId={}, contentType={}", contentId, contentType);
 
-      ContentType type = ContentType.valueOf(contentType.toUpperCase());
-      List<Feedback> feedbackList = feedbackRepository.findByContentIdAndContentType(contentId, type);
+        ContentType type = ContentType.valueOf(contentType.toUpperCase());
+        List<Feedback> feedbackList = feedbackRepository.findByContentIdAndContentType(contentId, type);
 
-      return feedbackList.stream()
-              .map(f->modelMapper.map(f, FeedbackResponseDto.class))
-              .collect(Collectors.toList());
+        return feedbackList.stream()
+                .map(f -> modelMapper.map(f, FeedbackResponseDto.class))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<FeedbackResponseDto> getFeedbackByUser(Long userId) {
-        log.debug("Fetching feedback for userId={}",userId);
+        log.debug("Fetching feedback for userId={}", userId);
 
         List<Feedback> feedbacklist = feedbackRepository.findByUserId(userId);
         return feedbacklist.stream()
-                .map(f->modelMapper.map(f, FeedbackResponseDto.class))
+                .map(f -> modelMapper.map(f, FeedbackResponseDto.class))
                 .collect(Collectors.toList());
     }
 

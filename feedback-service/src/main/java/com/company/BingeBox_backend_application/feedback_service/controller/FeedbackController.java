@@ -1,82 +1,83 @@
 package com.company.BingeBox_backend_application.feedback_service.controller;
 
-
+import com.company.BingeBox_backend_application.feedback_service.auth.RoleAllowed;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackRequestDto;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackResponseDto;
 import com.company.BingeBox_backend_application.feedback_service.dtos.FeedbackSummaryDto;
 import com.company.BingeBox_backend_application.feedback_service.service.FeedbackService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Slf4j
 @RestController
+@RequestMapping("/feedbacks")
 @RequiredArgsConstructor
-@RequestMapping("/feedback")
+@Slf4j
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
-
-    // create feedback
+    // ------------------- CREATE -------------------
     @PostMapping
-    public ResponseEntity<FeedbackResponseDto> createFeedback(@RequestBody FeedbackRequestDto request) {
-        log.info("Received request to create feedback: {}", request);
-        FeedbackResponseDto response = feedbackService.addFeedback(null, request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    @RoleAllowed({"USER", "ADMIN"})
+    public ResponseEntity<FeedbackResponseDto> addFeedback(@RequestBody FeedbackRequestDto requestDto) {
+        log.info("Request to add feedback for contentId={} by current user", requestDto.getContentId());
+        FeedbackResponseDto responseDto = feedbackService.addFeedback(null, requestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
-    @PutMapping("/{id}")
+    // ------------------- UPDATE -------------------
+    @PutMapping("/{feedbackId}")
+    @RoleAllowed({"USER", "ADMIN"})
     public ResponseEntity<FeedbackResponseDto> updateFeedback(
-            @PathVariable Long id,
-            @RequestBody FeedbackRequestDto request
-    ){
-        log.info("Received request to update feedback with id={}", id);
-        FeedbackResponseDto response = feedbackService.updateFeedback(id, request);
-        return ResponseEntity.ok(response);
+            @PathVariable Long feedbackId,
+            @RequestBody FeedbackRequestDto requestDto) {
+        log.info("Request to update feedbackId={} by current user", feedbackId);
+        FeedbackResponseDto responseDto = feedbackService.updateFeedback(feedbackId, requestDto);
+        return ResponseEntity.ok(responseDto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable Long id){
-        log.info("Received request to delete feedback with id={}",id);
-        feedbackService.deleteFeedback(id);
-        return ResponseEntity.noContent().build();
+    // ------------------- DELETE -------------------
+    @DeleteMapping("/{feedbackId}")
+    @RoleAllowed({"USER", "ADMIN"})
+    public ResponseEntity<String> deleteFeedback(@PathVariable Long feedbackId) {
+        log.info("Request to delete feedbackId={} by current user", feedbackId);
+        feedbackService.deleteFeedback(feedbackId);
+        return ResponseEntity.ok("Feedback deleted successfully with id: " + feedbackId);
     }
 
-
+    // ------------------- GET BY CONTENT -------------------
     @GetMapping("/content/{contentId}")
+    @RoleAllowed({"USER", "ADMIN"})
     public ResponseEntity<List<FeedbackResponseDto>> getFeedbackByContent(
             @PathVariable Long contentId,
-            @RequestParam("type") String contentType
-    ){
-        log.info("Fetching feedbacks for contentId={} of type={}",contentId,contentType);
-
-        List<FeedbackResponseDto> response = feedbackService.getFeedbackByContent(contentId, contentType);
-        return ResponseEntity.ok(response);
+            @RequestParam String contentType) {
+        log.info("Fetching feedbacks for contentId={} contentType={}", contentId, contentType);
+        List<FeedbackResponseDto> feedbacks = feedbackService.getFeedbackByContent(contentId, contentType);
+        return ResponseEntity.ok(feedbacks);
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<FeedbackResponseDto>> getFeedbackByUser(@PathVariable Long userId){
-        log.info("Fetching feedbacks for userId={}", userId);
-
-        List<FeedbackResponseDto> response = feedbackService.getFeedbackByUser(userId);
-        return ResponseEntity.ok(response);
+    // ------------------- GET BY USER -------------------
+    @GetMapping("/user")
+    @RoleAllowed({"USER", "ADMIN"})
+    public ResponseEntity<List<FeedbackResponseDto>> getFeedbackByCurrentUser() {
+        Long userId = com.company.BingeBox_backend_application.feedback_service.auth.UserContextHolder.getCurrentUserId();
+        log.info("Fetching feedbacks for current userId={}", userId);
+        List<FeedbackResponseDto> feedbacks = feedbackService.getFeedbackByUser(userId);
+        return ResponseEntity.ok(feedbacks);
     }
 
-
-    @GetMapping("/summary/{contentId}")
+    // ------------------- SUMMARY -------------------
+    @GetMapping("/content/{contentId}/summary")
+    @RoleAllowed({"USER", "ADMIN"})
     public ResponseEntity<FeedbackSummaryDto> getFeedbackSummary(
             @PathVariable Long contentId,
-            @RequestParam("type") String contentType
-    ){
-        log.info("Fetching feedback summary for contentId={} of type={}",contentId, contentType);
-
-        FeedbackSummaryDto response = feedbackService.getFeedbackSummary(contentId, contentType);
-        return ResponseEntity.ok(response);
+            @RequestParam String contentType) {
+        log.info("Fetching feedback summary for contentId={} contentType={}", contentId, contentType);
+        FeedbackSummaryDto summary = feedbackService.getFeedbackSummary(contentId, contentType);
+        return ResponseEntity.ok(summary);
     }
-
 }
