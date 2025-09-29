@@ -14,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -69,12 +70,25 @@ public class FeedbackServiceImpl implements FeedbackService {
 
     @Override
     public void deleteFeedback(Long feedbackId) {
+      log.warn("Deleting the feedback Id={}", feedbackId);
 
+      Feedback feedback = feedbackRepository.findById(feedbackId)
+              .orElseThrow(()->new ResourceNotFoundException("Feedback not found with id/l "+feedbackId));
+
+      feedbackRepository.delete(feedback);
+      log.info("Feedback deleted successfully id={}", feedbackId);
     }
 
     @Override
     public List<FeedbackResponseDto> getFeedbackByContent(Long contentId, String contentType) {
-        return List.of();
+      log.debug("Fetching feedback for contentId={}, contentType={}",contentId, contentType);
+
+      ContentType type = ContentType.valueOf(contentType.toUpperCase());
+      List<Feedback> feedbackList = feedbackRepository.findByContentIdAndContentType(contentId, type);
+
+      return feedbackList.stream()
+              .map(f->modelMapper.map(f, FeedbackResponseDto.class))
+              .collect(Collectors.toList());
     }
 
     @Override
